@@ -72,7 +72,7 @@ id: interview_order_a_notice_of_appearance_self_rep
 code: |
   # Set the allowed courts for this interview
   allowed_courts = []
-  nav.set_section("review_form")
+  #nav.set_section("review_form")
   #user_role = "plaintiff"
   #user_ask_role = "plaintiff"
   trial_court.address.address
@@ -81,9 +81,9 @@ code: |
   users1_role
   users.gather()
   #set_parts(subtitle=str(users))
-  users[0].address.address
+  #users[0].address.address
+  users[0].mailing_address.address
   set_progress(32)
-  users1_address_mailing
   users[0].phone_number
   users[0].email
   set_progress(48)
@@ -182,9 +182,9 @@ validation code: |
 ---
 id: consent to get notices by email
 question: |
-  Do you want to get information about this case through email?
+  Email communications
 fields:
-  - "I consent to getting email about this case": email_consent
+  - "I want to get information about this case through email": email_consent
     datatype: yesno
 ---
 id: preview notice of appearance

@@ -1,3 +1,19 @@
+comment: |
+  Ask Lemma to help me package up the things I will use on multiple interviews so I can just refer to one file in each interview
+  the style sheet from VTCourtFormsBranding
+  customized feedback form
+  customized the error message
+  ALCourtLoader and courts_list.xlsx
+  id: customized emails sent with attachments
+  id: al share form screen
+  template: asterisk
+  template: not_seeing_email
+  template: log_out_when_done
+  AL_ORGANIZATION_TITLE
+  homepage, logos, default state, github repo for feedback, etc
+  
+  
+
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
@@ -44,6 +60,7 @@ code: |
 ---
 objects:
   - users: ALPeopleList.using(ask_number=True,target_number=1)
+  - other_parties: ALPeopleList.using(ask_number=True,target_number=1)
 ---
 sections:
   - review_form: Review your answers
@@ -56,14 +73,14 @@ code: |
   # Set the allowed courts for this interview
   allowed_courts = []
   nav.set_section("review_form")
-  user_role = "plaintiff"
-  user_ask_role = "plaintiff"
+  #user_role = "plaintiff"
+  #user_ask_role = "plaintiff"
   trial_court.address.address
   docket_number
   set_progress(16)
-  user1_other_role
+  users1_role
   users.gather()
-  set_parts(subtitle=str(users))
+  #set_parts(subtitle=str(users))
   users[0].address.address
   set_progress(32)
   users1_address_mailing
@@ -82,7 +99,7 @@ comment: |
 mandatory: True
 code: |
   al_intro_screen
-  notice_of_appearance_intro_screen
+  #notice_of_appearance_intro_screen
   interview_order_a_notice_of_appearance_self_rep
   signature_date
   # Store anonymous data for analytics / statistics
@@ -117,19 +134,22 @@ subquestion: |
   
   Most people take about _______ minutes to finish this interview.
 ---
-id: your role
+id: users role
 question: |
-  Your role in this case
+  Your role
 fields:
-  - "You are the \"Plaintiff,\" which means you started the case": role_plaintiff
-    datatype: yesno
-  - "You are the \"Defendant,\" which means you did not start the case but are named in the case": role_defendant
-    datatype: yesno
-  - "You have another role": role_other
-    datatype: yesno
-  - "Describe your role": user1_other_role
+  - "What is your role in this case?": users1_role
+    datatype: checkboxes
+    none of the above: False
+    minlength: 1
+    maxlength: 1
+    choices:
+    - "You are the \"Plaintiff,\" which means you started the case": role_plaintiff
+    - "You are the \"Defendant,\" which means you did not start the case but are named in the case": role_defendant
+    - "You have another role": role_other
+  - Describe your role in a couple words: other_role_description
     maxlength: 33
-    show if: role_other
+    show if: users1_role["role_other"]
 ---
 id: users mailing address
 question: |
@@ -224,22 +244,22 @@ review:
       % for item in other_parties:
         * ${ item }
       % endfor
-  - Edit: user1_other_role
-    button: |
-      **Describe your role**:
-      ${ user1_other_role }
-  - Edit: role_plaintiff
-    button: |
-      **Role of "Plaintiff," which means you started the case**:
-      ${ word(yesno(role_plaintiff)) }
-  - Edit: role_defendant
-    button: |
-      **Role of "Defendant," which means you did not start the case**:
-      ${ word(yesno(role_defendant)) }
-  - Edit: role_other
+  #- Edit: user1_role
+  #  button: |
+  #    **Describe your role**:
+  #    ${ user1_other_role }
+  #- Edit: role_plaintiff
+  #  button: |
+  #    **Role of "Plaintiff," which means you started the case**:
+  #    ${ word(yesno(role_plaintiff)) }
+  #- Edit: role_defendant
+  #  button: |
+  #    **Role of "Defendant," which means you did not start the case**:
+  #    ${ word(yesno(role_defendant)) }
+  - Edit: other_role_description
     button: |
       **Another role**:
-      ${ word(yesno(role_other)) }
+      ${ showifdef('other_role_description') }
   - Edit: email_consent
     button: |
       **Do you consent to getting email about this case?**:
@@ -356,7 +376,7 @@ attachment:
       - "user1_other_role": ${ user1_other_role }
       - "role_plaintiff": ${ role_plaintiff }
       - "role_defendant": ${ role_defendant }
-      - "role_other": ${ role_other }
+      - "role_other": ${ other_role_description }
       - "email_consent_yes": ${ email_consent }
       - "email_consent_no": ${ not email_consent }
       - "users1_address_mailing": ${ users1_address_mailing }

@@ -1,4 +1,7 @@
 comment: |
+  Need to work on adding court chooser; ask for defendant name more simply; start work on Review screen
+
+
   Ask Lemma to help me package up the things I will use on multiple interviews so I can just refer to one file in each interview
   the style sheet from VTCourtFormsBranding
   customized feedback form
@@ -133,23 +136,46 @@ sections:
   - sign: Signature
   - get_docs: Get your documents
 ---
-comment: |
-  This question is used to introduce your interview. Please customize
-id: notice of appearance intro screen
-continue button field: notice_of_appearance_intro_screen
+id: basic questions intro screen
 question: |
-  Notice of Appearance for Self-Represented Party
-subquestion: |
-  This interview helps you tell a Vermont court you are participating in a court case and shares your contact information.
+  **Notice of Appearance for Self-Represented Party in Vermont**
+subquestion: |  
+  <i>THIS TOOL IS IN DEVELOPMENT & UNDERGOING REVIEW. Thank you, reviewers!</i>
   
-  Before you get started, please gather:
+  <div class="border-around-text">
   
-  Most people take about 10 minutes to finish this interview.
+  <p>${ AL_ORGANIZATION_TITLE } can help you complete and download forms in 3 steps:</p>
+  <ul><li><b>Step 1:</b> Answer questions that will fill in court forms for you.</li>
+  <li><b>Step 2:</b> Preview the completed forms and edit answers, if needed.</li>
+  <li><b>Step 3:</b> Download, save, print or email the final forms.</li></ul>
   
+  <p>You will need to mail, email, efile or deliver them to the court on your own. VTCourtForms will give you instructions.</p>
+  </div>  
+  
+  <i class="fas fa-file-text fa-2x"></i> This guided interview will produce a form that tells a Vermont court that you are participating in a court case without a lawyer. It also shares your contact information.
+  
+    When you sign the form, you are telling the court: "I do not have an attorney and will represent myself. If I decide to be represented by an attorney in the future, my attorney will notify the court of the change."
+  
+  <i class="fas fa-clock fa-2x"></i> It may take you 10 minutes to complete this interview. 
+  
+  <i class="fas fa-circle-info fa-2x"></i> It is free to use this program. This site is not a lawyer. Visit our [VTLawHelp.org website](https://vtlawhelp.org/roadmap/relief-from-abuse/step-1) for more information about xyz.
+  
+  VTCourtForms was created by Legal Services Vermont with support from the Legal Services Corporation and assistance from the Suffolk University Legal Innovation and Technology (LIT) Lab Document Assembly Line Project. We also had help from Vermont Legal Aid, Vermont Judiciary and other Vermont organizations.
+  
+  [FILE big_logo, 30%, Legal Services Vermont]
 
-  
-  When you sign the form, you are telling the court:
-  "I do not have an attorney and will represent myself. If I decide to be represented by an attorney in the future, my attorney will notify the court of the change."
+fields:
+  - To continue, please accept our [terms of use](https://vtlawhelp.org/vtcourtforms/terms-of-use).: acknowledged_information_use
+    datatype: checkboxes
+    none of the above: False    
+    minlength: 1
+    choices:
+      - I accept the terms of use.
+    validation messages:
+      minlength: |
+        You cannot continue unless you agree to the terms of use.        
+continue button field: al_intro_screen
+
 ---
 id: users role
 question: |

@@ -1,0 +1,372 @@
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALAnyState:any_state.yml
+---
+metadata:
+  title: >-
+    Notice of Appearance (Self-Represented) for Vermont
+  short title: >-
+    VT Notice of Appearance
+  description: |-
+    This interview helps you tell a Vermont court you are participating in a court case without a lawyer.
+  tags:
+    - "FA-06-00-00-00"
+  authors:
+    - VTCourtForms by Legal Services Vermont
+  original_form:
+    - https://vtlawhelp.org/roadmap/divorce/step-3
+  help_page_url: >-
+    https://vtlawhelp.org/roadmap/divorce/step-3
+  help_page_title: >-
+    Divorce Roadmap
+  allowed_courts: []
+  typical_role: "plaintiff"
+  al_weaver_version: "1.10.2"
+  generated_on: "2023-11-10"
+---
+code: |
+  # This controls the default country and list of states in address field questions
+  AL_DEFAULT_COUNTRY = "US"
+---
+code: |
+  # This controls the default state in address field questions
+  AL_DEFAULT_STATE = "VT"
+---
+code: |
+  github_repo_name =  'docassemble-ANoticeOfAppearanceSelfRep'
+---
+code: |
+  interview_short_title = "Tell the court you are participating in a court case without a lawyer"
+---
+code: |
+  al_form_type = "starts_case" 
+---
+objects:
+  - users: ALPeopleList.using(ask_number=True,target_number=1)
+---
+sections:
+  - review_form: Review your answers
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_a_notice_of_appearance_self_rep
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = []
+  nav.set_section("review_form")
+  user_role = "plaintiff"
+  user_ask_role = "plaintiff"
+  trial_court.address.address
+  docket_number
+  set_progress(16)
+  user1_other_role
+  users.gather()
+  set_parts(subtitle=str(users))
+  users[0].address.address
+  set_progress(32)
+  users1_address_mailing
+  users[0].phone_number
+  users[0].email
+  set_progress(48)
+  email_consent
+  other_parties.gather()
+  signature_date
+  interview_order_a_notice_of_appearance_self_rep = True
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  al_intro_screen
+  notice_of_appearance_intro_screen
+  interview_order_a_notice_of_appearance_self_rep
+  signature_date
+  # Store anonymous data for analytics / statistics
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  a_notice_of_appearance_self_rep_download
+---
+comment: |
+  This question is used to introduce your interview. Please customize
+id: notice of appearance intro screen
+continue button field: notice_of_appearance_intro_screen
+question: |
+  Notice of Appearance for Self-Represented Party
+subquestion: |
+  This interview helps you tell a Vermont court you are participating in a court case and shares your contact information.
+  
+  Before you get started, please gather:
+  
+  1. 
+  1. 
+  1. 
+  
+  When you are finished, you will need to:
+  
+  1. 
+  1. 
+  
+  Most people take about _______ minutes to finish this interview.
+---
+id: your role
+question: |
+  Your role in this case
+fields:
+  - "You are the \"Plaintiff,\" which means you started the case": role_plaintiff
+    datatype: yesno
+  - "You are the \"Defendant,\" which means you did not start the case but are named in the case": role_defendant
+    datatype: yesno
+  - "You have another role": role_other
+    datatype: yesno
+  - "Describe your role": user1_other_role
+    maxlength: 33
+    show if: role_other
+---
+id: users mailing address
+question: |
+  Your mailing address
+fields:
+  - "Mailing address": users1_address_mailing
+    maxlength: 74
+---
+id: your contact information
+question: |
+  Your phone and email
+
+  ${ collapse_template(why_contact_info_needed_template) }
+fields:  
+
+  - Daytime phone number: users[0].phone_number
+    required: False
+  - Email address: users[0].email    
+    datatype: email
+    required: False
+    help: |
+      If you do not have a phone number or email, provide
+      specific contact instructions. For example, use a friend's phone number.
+      But the friend must be someone you can rely on to give you a
+      message.
+validation code: |
+  if (not showifdef('users[0].phone_number')) and \
+      (not showifdef('users[0].email')):
+    validation_error(word("You need to provide at least one contact method."))
+---
+id: consent to get notices by email
+question: |
+  Do you want to get information about this case through email?
+fields:
+  - "I consent to getting email about this case": email_consent
+    datatype: yesno
+---
+id: preview notice of appearance
+question: |
+  Preview your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.   
+  
+  ${ al_court_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_a_notice_of_appearance_self_rep'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue and sign your form.
+continue button field: notice_of_appearance_preview_question    
+---
+id: your signature
+code: |
+  signature_fields = ['users[0].signature']
+---
+code: |
+  # This is a placeholder for the addresses that will be searched
+  # for matching address to court. Edit if court venue is based on 
+  # a different address than the user's
+  [user.address.address for user in users.complete_elements()]
+  addresses_to_search = [user.address for user in users.complete_elements()]
+---
+id: notice of appearance review screen
+event: review_notice_of_appearance
+question: |
+  Review your answers
+review:
+  - Edit: docket_number
+    button: |
+      **Docket number**:
+      ${ docket_number }
+  - Edit: trial_court
+    button: |
+      **Trial court**
+  
+      % if defined("trial_court.address.county"):
+      * address: ${ trial_court.address.block() }
+      % endif
+  - Edit: users.revisit
+    button: |
+      **Users**
+
+      % for item in users:
+        * ${ item }
+      % endfor
+  - Edit: other_parties.revisit
+    button: |
+      **Other parties**
+
+      % for item in other_parties:
+        * ${ item }
+      % endfor
+  - Edit: user1_other_role
+    button: |
+      **Describe your role**:
+      ${ user1_other_role }
+  - Edit: role_plaintiff
+    button: |
+      **Role of "Plaintiff," which means you started the case**:
+      ${ word(yesno(role_plaintiff)) }
+  - Edit: role_defendant
+    button: |
+      **Role of "Defendant," which means you did not start the case**:
+      ${ word(yesno(role_defendant)) }
+  - Edit: role_other
+    button: |
+      **Another role**:
+      ${ word(yesno(role_other)) }
+  - Edit: email_consent
+    button: |
+      **Do you consent to getting email about this case?**:
+      ${ word(yesno(email_consent)) }
+  - Edit: users1_address_mailing
+    button: |
+      **Your mailing address**:
+      ${ users1_address_mailing }
+  - Edit: signature_date
+    button: |
+      **Date of signature**:
+      ${ signature_date }
+---
+continue button field: users.revisit
+question: |
+  Edit users
+subquestion: |
+  ${ users.table }
+
+  ${ users.add_action() }
+---
+table: users.table
+rows: users
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Address: |
+      row_item.address.block() if defined("row_item.address.zip") else ""
+  - Daytime phone number: |
+      row_item.phone_number if defined("row_item.phone_number") else ""
+  - Email: |
+      row_item.email if defined("row_item.email") else ""
+  - Signature: |
+      row_item.signature if defined("row_item.signature") else ""
+edit:
+  - name.first
+  - address.zip
+  - phone_number
+  - email
+  - signature
+confirm: True
+
+---
+continue button field: other_parties.revisit
+question: |
+  Edit other_parties
+subquestion: |
+  ${ other_parties.table }
+
+  ${ other_parties.add_action() }
+---
+table: other_parties.table
+rows: other_parties
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+edit:
+  - name.first
+confirm: True
+
+---
+id: download a_notice_of_appearance_self_rep
+event: a_notice_of_appearance_self_rep_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_notice_of_appearance'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+progress: 100
+---
+# ALDocument objects specify the metadata for each template
+objects:
+  - a_notice_of_appearance_self_rep_Post_interview_instructions: ALDocument.using(title="Instructions", filename="a_notice_of_appearance_self_rep_next_steps.docx", enabled=True, has_addendum=False)
+  - a_notice_of_appearance_self_rep_attachment: ALDocument.using(title="Notice of appearance - self-represented", filename="a_notice_of_appearance_self_rep", enabled=True, has_addendum=False, )
+---
+# Bundles group the ALDocuments into separate downloads, such as for court and for the user
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[a_notice_of_appearance_self_rep_Post_interview_instructions, a_notice_of_appearance_self_rep_attachment], filename="a_notice_of_appearance_self_rep", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[a_notice_of_appearance_self_rep_attachment],  filename="a_notice_of_appearance_self_rep", title="All forms to deliver to court", enabled=True)
+---
+# Each attachment defines a key in an ALDocument. We use `i` as the placeholder here so the same template is 
+# used for "preview" and "final" keys, and logic in the template checks the value of 
+# `i` to show or hide the user's signature
+attachment:
+  name: Post-interview-Instructions
+  filename: a_notice_of_appearance_self_rep_next_steps
+  docx template file: a_notice_of_appearance_self_rep_next_steps.docx
+  variable name: a_notice_of_appearance_self_rep_Post_interview_instructions[i]
+  skip undefined: True
+  tagged pdf: True
+---
+attachment:
+  name: a notice of appearance self rep
+  filename: a_notice_of_appearance_self_rep
+  variable name: a_notice_of_appearance_self_rep_attachment[i]
+  skip undefined: True
+  pdf template file: a_notice_of_appearance_self_rep.pdf
+  fields:
+      - "docket_number": ${ docket_number }
+      - "trial_court_county": ${ trial_court.address.county }
+      - "users1_name": ${ users[0] }
+      - "users1_name__1": ${ users[0] }
+      - "other_parties1_name": ${ other_parties[0] }
+      - "user1_other_role": ${ user1_other_role }
+      - "role_plaintiff": ${ role_plaintiff }
+      - "role_defendant": ${ role_defendant }
+      - "role_other": ${ role_other }
+      - "email_consent_yes": ${ email_consent }
+      - "email_consent_no": ${ not email_consent }
+      - "users1_address_mailing": ${ users1_address_mailing }
+      - "users1_address_city": ${ users[0].address.city }
+      - "users1_address_state": ${ users[0].address.state }
+      - "users1_address_zip": ${ users[0].address.zip }
+      - "users1_phone_number": ${ users[0].phone_number }
+      - "users1_email": ${ users[0].email }
+      - "signature_date": ${ signature_date }
+      - "users1_signature": ${ users[0].signature_if_final(i) }
+
+
+

@@ -11,6 +11,7 @@ comment: |
   template: log_out_when_done
   AL_ORGANIZATION_TITLE
   homepage, logos, default state, github repo for feedback, etc
+  text at top of basic questions intro screen
   
   
 
@@ -62,6 +63,12 @@ objects:
   - users: ALPeopleList.using(ask_number=True,target_number=1)
   - other_parties: ALPeopleList.using(ask_number=True,target_number=1)
 ---
+generic object: ALAddress
+template: x.address_label
+content: |
+  Street address or P.O. Box
+  - Note: The court will send all notices and orders to you at this mailing address.
+---
 sections:
   - review_form: Review your answers
 ---
@@ -78,6 +85,7 @@ code: |
   trial_court.address.address
   docket_number
   set_progress(16)
+  nav.set_section("about")
   users1_role
   users.gather()
   #set_parts(subtitle=str(users))
@@ -88,8 +96,12 @@ code: |
   users[0].email
   set_progress(48)
   email_consent
+  nav.set_section('defendant')
   other_parties.gather()
+  nav.set_section('sign')
   signature_date
+  al_form_requires_digital_signature = False
+  basic_questions_signature_flow    
   interview_order_a_notice_of_appearance_self_rep = True
 ---
 ###################### Main order ######################
@@ -98,6 +110,7 @@ comment: |
   Delete mandatory: True to include in another interview
 mandatory: True
 code: |
+  nav.set_section("intro")
   al_intro_screen
   #notice_of_appearance_intro_screen
   interview_order_a_notice_of_appearance_self_rep
@@ -112,6 +125,14 @@ code: |
   )
   a_notice_of_appearance_self_rep_download
 ---
+sections:
+  - intro: Introduction
+  - about: About you
+  - defendant: About the defendant
+  - review: Edit your answers
+  - sign: Signature
+  - get_docs: Get your documents
+---
 comment: |
   This question is used to introduce your interview. Please customize
 id: notice of appearance intro screen
@@ -123,16 +144,12 @@ subquestion: |
   
   Before you get started, please gather:
   
-  1. 
-  1. 
-  1. 
+  Most people take about 10 minutes to finish this interview.
   
-  When you are finished, you will need to:
+
   
-  1. 
-  1. 
-  
-  Most people take about _______ minutes to finish this interview.
+  When you sign the form, you are telling the court:
+  "I do not have an attorney and will represent myself. If I decide to be represented by an attorney in the future, my attorney will notify the court of the change."
 ---
 id: users role
 question: |
@@ -151,12 +168,12 @@ fields:
     maxlength: 33
     show if: users1_role["role_other"]
 ---
-id: users mailing address
-question: |
-  Your mailing address
-fields:
-  - "Mailing address": users1_address_mailing
-    maxlength: 74
+#id: users mailing address
+#question: |
+#  Your mailing address
+#fields:
+#  - "Mailing address": users1_address_mailing
+#    maxlength: 74
 ---
 id: your contact information
 question: |
@@ -183,8 +200,10 @@ validation code: |
 id: consent to get notices by email
 question: |
   Email communications
+subquestion: | 
+  The other parties in the case must sent you a copy of all documents they file with the court. If you check the box below, the other parties may send you the documents by email instead of by mail.
 fields:
-  - "I want to get information about this case through email": email_consent
+  - "I agree to get documents about this case by email": email_consent
     datatype: yesno
 ---
 id: preview notice of appearance
@@ -373,16 +392,16 @@ attachment:
       - "users1_name": ${ users[0] }
       - "users1_name__1": ${ users[0] }
       - "other_parties1_name": ${ other_parties[0] }
-      - "user1_other_role": ${ user1_other_role }
-      - "role_plaintiff": ${ role_plaintiff }
-      - "role_defendant": ${ role_defendant }
-      - "role_other": ${ other_role_description }
+      - "user1_other_role": ${ other_role_description }
+      - "role_plaintiff": ${ users1_role["plaintiff"] }
+      - "role_defendant": ${ users1_role["defendant"] }
+      - "role_other": ${ users1_role["role_other"] }
       - "email_consent_yes": ${ email_consent }
       - "email_consent_no": ${ not email_consent }
-      - "users1_address_mailing": ${ users1_address_mailing }
-      - "users1_address_city": ${ users[0].address.city }
-      - "users1_address_state": ${ users[0].address.state }
-      - "users1_address_zip": ${ users[0].address.zip }
+      - "users1_address_mailing": ${ users[0].mailing_address.address }
+      - "users1_address_city": ${ users[0].mailing_address.city }
+      - "users1_address_state": ${ users[0].mailing_address.state }
+      - "users1_address_zip": ${ users[0].mailing_address.zip }
       - "users1_phone_number": ${ users[0].phone_number }
       - "users1_email": ${ users[0].email }
       - "signature_date": ${ signature_date }

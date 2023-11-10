@@ -1,3 +1,23 @@
+comment: |
+  Need to work on adding court chooser; ask for defendant name more simply; start work on Review screen
+
+
+  Ask Lemma to help me package up the things I will use on multiple interviews so I can just refer to one file in each interview
+  the style sheet from VTCourtFormsBranding
+  customized feedback form
+  customized the error message
+  ALCourtLoader and courts_list.xlsx
+  id: customized emails sent with attachments
+  id: al share form screen
+  template: asterisk
+  template: not_seeing_email
+  template: log_out_when_done
+  AL_ORGANIZATION_TITLE
+  homepage, logos, default state, github repo for feedback, etc
+  text at top of basic questions intro screen
+  
+  
+
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
@@ -44,6 +64,13 @@ code: |
 ---
 objects:
   - users: ALPeopleList.using(ask_number=True,target_number=1)
+  - other_parties: ALPeopleList.using(ask_number=True,target_number=1)
+---
+generic object: ALAddress
+template: x.address_label
+content: |
+  Street address or P.O. Box
+  - Note: The court will send all notices and orders to you at this mailing address.
 ---
 sections:
   - review_form: Review your answers
@@ -55,24 +82,29 @@ id: interview_order_a_notice_of_appearance_self_rep
 code: |
   # Set the allowed courts for this interview
   allowed_courts = []
-  nav.set_section("review_form")
-  user_role = "plaintiff"
-  user_ask_role = "plaintiff"
+  #nav.set_section("review_form")
+  #user_role = "plaintiff"
+  #user_ask_role = "plaintiff"
   trial_court.address.address
   docket_number
   set_progress(16)
-  user1_other_role
+  nav.set_section("about")
+  users1_role
   users.gather()
-  set_parts(subtitle=str(users))
-  users[0].address.address
+  #set_parts(subtitle=str(users))
+  #users[0].address.address
+  users[0].mailing_address.address
   set_progress(32)
-  users1_address_mailing
   users[0].phone_number
   users[0].email
   set_progress(48)
   email_consent
+  nav.set_section('defendant')
   other_parties.gather()
+  nav.set_section('sign')
   signature_date
+  al_form_requires_digital_signature = False
+  basic_questions_signature_flow    
   interview_order_a_notice_of_appearance_self_rep = True
 ---
 ###################### Main order ######################
@@ -81,8 +113,9 @@ comment: |
   Delete mandatory: True to include in another interview
 mandatory: True
 code: |
+  nav.set_section("intro")
   al_intro_screen
-  notice_of_appearance_intro_screen
+  #notice_of_appearance_intro_screen
   interview_order_a_notice_of_appearance_self_rep
   signature_date
   # Store anonymous data for analytics / statistics
@@ -95,48 +128,78 @@ code: |
   )
   a_notice_of_appearance_self_rep_download
 ---
-comment: |
-  This question is used to introduce your interview. Please customize
-id: notice of appearance intro screen
-continue button field: notice_of_appearance_intro_screen
-question: |
-  Notice of Appearance for Self-Represented Party
-subquestion: |
-  This interview helps you tell a Vermont court you are participating in a court case and shares your contact information.
-  
-  Before you get started, please gather:
-  
-  1. 
-  1. 
-  1. 
-  
-  When you are finished, you will need to:
-  
-  1. 
-  1. 
-  
-  Most people take about _______ minutes to finish this interview.
+sections:
+  - intro: Introduction
+  - about: About you
+  - defendant: About the defendant
+  - review: Edit your answers
+  - sign: Signature
+  - get_docs: Get your documents
 ---
-id: your role
+id: basic questions intro screen
 question: |
-  Your role in this case
+  **Notice of Appearance for Self-Represented Party in Vermont**
+subquestion: |  
+  <i>THIS TOOL IS IN DEVELOPMENT & UNDERGOING REVIEW. Thank you, reviewers!</i>
+  
+  <div class="border-around-text">
+  
+  <p>${ AL_ORGANIZATION_TITLE } can help you complete and download forms in 3 steps:</p>
+  <ul><li><b>Step 1:</b> Answer questions that will fill in court forms for you.</li>
+  <li><b>Step 2:</b> Preview the completed forms and edit answers, if needed.</li>
+  <li><b>Step 3:</b> Download, save, print or email the final forms.</li></ul>
+  
+  <p>You will need to mail, email, efile or deliver them to the court on your own. VTCourtForms will give you instructions.</p>
+  </div>  
+  
+  <i class="fas fa-file-text fa-2x"></i> This guided interview will produce a form that tells a Vermont court that you are participating in a court case without a lawyer. It also shares your contact information.
+  
+    When you sign the form, you are telling the court: "I do not have an attorney and will represent myself. If I decide to be represented by an attorney in the future, my attorney will notify the court of the change."
+  
+  <i class="fas fa-clock fa-2x"></i> It may take you 10 minutes to complete this interview. 
+  
+  <i class="fas fa-circle-info fa-2x"></i> It is free to use this program. This site is not a lawyer. Visit our [VTLawHelp.org website](https://vtlawhelp.org/roadmap/relief-from-abuse/step-1) for more information about xyz.
+  
+  VTCourtForms was created by Legal Services Vermont with support from the Legal Services Corporation and assistance from the Suffolk University Legal Innovation and Technology (LIT) Lab Document Assembly Line Project. We also had help from Vermont Legal Aid, Vermont Judiciary and other Vermont organizations.
+  
+  [FILE big_logo, 30%, Legal Services Vermont]
+
 fields:
-  - "You are the \"Plaintiff,\" which means you started the case": role_plaintiff
-    datatype: yesno
-  - "You are the \"Defendant,\" which means you did not start the case but are named in the case": role_defendant
-    datatype: yesno
-  - "You have another role": role_other
-    datatype: yesno
-  - "Describe your role": user1_other_role
+  - To continue, please accept our [terms of use](https://vtlawhelp.org/vtcourtforms/terms-of-use).: acknowledged_information_use
+    datatype: checkboxes
+    none of the above: False    
+    minlength: 1
+    choices:
+      - I accept the terms of use.
+    validation messages:
+      minlength: |
+        You cannot continue unless you agree to the terms of use.        
+continue button field: al_intro_screen
+
+---
+id: users role
+question: |
+  Your role
+fields:
+  - "What is your role in this case?": users1_role
+    datatype: checkboxes
+    none of the above: False
+    minlength: 1
+    maxlength: 1
+    choices:
+    - "You are the \"Plaintiff,\" which means you started the case": role_plaintiff
+    - "You are the \"Defendant,\" which means you did not start the case but are named in the case": role_defendant
+    - "You have another role": role_other
+  - Describe your role in a couple words: other_role_description
     maxlength: 33
-    show if: role_other
+    show if: users1_role["role_other"]
 ---
-id: users mailing address
-question: |
-  Your mailing address
-fields:
-  - "Mailing address": users1_address_mailing
-    maxlength: 74
+#id: users mailing address
+#question: |
+#  Your mailing address
+#fields:
+#  - "Mailing address": users1_address_mailing
+#    maxlength: 74
 ---
 id: your contact information
 question: |
@@ -162,9 +225,11 @@ validation code: |
 ---
 id: consent to get notices by email
 question: |
-  Do you want to get information about this case through email?
+  Email communications
+subquestion: | 
+  The other parties in the case must sent you a copy of all documents they file with the court. If you check the box below, the other parties may send you the documents by email instead of by mail.
 fields:
-  - "I consent to getting email about this case": email_consent
+  - "I agree to get documents about this case by email": email_consent
     datatype: yesno
 ---
 id: preview notice of appearance
@@ -224,22 +289,22 @@ review:
       % for item in other_parties:
         * ${ item }
       % endfor
-  - Edit: user1_other_role
-    button: |
-      **Describe your role**:
-      ${ user1_other_role }
-  - Edit: role_plaintiff
-    button: |
-      **Role of "Plaintiff," which means you started the case**:
-      ${ word(yesno(role_plaintiff)) }
-  - Edit: role_defendant
-    button: |
-      **Role of "Defendant," which means you did not start the case**:
-      ${ word(yesno(role_defendant)) }
-  - Edit: role_other
+  #- Edit: user1_role
+  #  button: |
+  #    **Describe your role**:
+  #    ${ user1_other_role }
+  #- Edit: role_plaintiff
+  #  button: |
+  #    **Role of "Plaintiff," which means you started the case**:
+  #    ${ word(yesno(role_plaintiff)) }
+  #- Edit: role_defendant
+  #  button: |
+  #    **Role of "Defendant," which means you did not start the case**:
+  #    ${ word(yesno(role_defendant)) }
+  - Edit: other_role_description
     button: |
       **Another role**:
-      ${ word(yesno(role_other)) }
+      ${ showifdef('other_role_description') }
   - Edit: email_consent
     button: |
       **Do you consent to getting email about this case?**:
@@ -353,16 +418,16 @@ attachment:
       - "users1_name": ${ users[0] }
       - "users1_name__1": ${ users[0] }
       - "other_parties1_name": ${ other_parties[0] }
-      - "user1_other_role": ${ user1_other_role }
-      - "role_plaintiff": ${ role_plaintiff }
-      - "role_defendant": ${ role_defendant }
-      - "role_other": ${ role_other }
+      - "user1_other_role": ${ other_role_description }
+      - "role_plaintiff": ${ users1_role["plaintiff"] }
+      - "role_defendant": ${ users1_role["defendant"] }
+      - "role_other": ${ users1_role["role_other"] }
       - "email_consent_yes": ${ email_consent }
       - "email_consent_no": ${ not email_consent }
-      - "users1_address_mailing": ${ users1_address_mailing }
-      - "users1_address_city": ${ users[0].address.city }
-      - "users1_address_state": ${ users[0].address.state }
-      - "users1_address_zip": ${ users[0].address.zip }
+      - "users1_address_mailing": ${ users[0].mailing_address.address }
+      - "users1_address_city": ${ users[0].mailing_address.city }
+      - "users1_address_state": ${ users[0].mailing_address.state }
+      - "users1_address_zip": ${ users[0].mailing_address.zip }
       - "users1_phone_number": ${ users[0].phone_number }
       - "users1_email": ${ users[0].email }
       - "signature_date": ${ signature_date }

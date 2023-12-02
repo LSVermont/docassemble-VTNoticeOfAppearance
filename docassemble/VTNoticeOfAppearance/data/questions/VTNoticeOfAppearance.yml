@@ -2,6 +2,7 @@ comment: |
   Not sure why I had to upload court file to this package when it is in the VTSharedYMLFile
   Need to set the names at top of form depending on how answer the role question
   What do I do about the other role?
+  Do the review screen
   
   
 
@@ -84,7 +85,8 @@ code: |
   email_consent
   nav.set_section('defendant')
   other_parties[0].name.first
-  nav.set_section('review_form')
+  signature_date
+  nav.set_section('review')
   notice_of_appearance_preview_question
   nav.set_section('sign')
   al_form_requires_digital_signature = False
@@ -101,7 +103,6 @@ code: |
   al_intro_screen
   #notice_of_appearance_intro_screen
   interview_order_a_notice_of_appearance_self_rep
-  signature_date
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(
       persistent=True,
@@ -111,13 +112,12 @@ code: |
       },
   )
   nav.set_section('get_docs')
-  a_notice_of_appearance_self_rep_download
+  notice_of_appearance_download
 ---
 sections:
   - intro: Introduction
   - about: About you
   - defendant: About the defendant
-  - review_form: Review your answers
   - review: Edit your answers
   - sign: Signature
   - get_docs: Get your documents
@@ -191,6 +191,7 @@ fields:
   - Describe your role in a couple words: other_role_description
     maxlength: 33
     show if: users1_role["role_other"]
+
 ---
 #id: users mailing address
 #question: |
@@ -249,11 +250,13 @@ id: signature date
 question: |
   Signature date
 fields:
-  - "Date of your signature on this form": signature_date
+  - "Date of your signature for this form": signature_date
     datatype: date
     required: False
     default: |
       ${ today() }
+  #- note: |
+    #${ after_last_question_we_will_generate_your_forms }
 ---
 id: preview notice of appearance
 question: |
@@ -286,6 +289,9 @@ id: notice of appearance review screen
 event: review_notice_of_appearance
 question: |
   Review your answers
+subquestion: |  
+  ${ review_screen_instructions }
+  
 review:
   - Edit: docket_number
     button: |
@@ -340,6 +346,8 @@ review:
     button: |
       **Date of signature**:
       **${ format_date(signature_date, format='M/d/yyyy') }**
+  - note: |
+      ${ review_screen_select_resume_will_take_moment }
 ---
 continue button field: users.revisit
 question: |
@@ -390,13 +398,11 @@ confirm: True
 
 ---
 id: download a_notice_of_appearance_self_rep
-event: a_notice_of_appearance_self_rep_download
+event: notice_of_appearance_download
 question: |
-  All done
+  Review your forms and download and/or print them
 subquestion: |
-  Thank you ${users}. Your form is ready to download.
-  
-  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+  ${ about_this_interview_version_info }
 
   ${ action_button_html(url_action('review_notice_of_appearance'), label='Edit your answers', color='info') }
   
@@ -405,6 +411,11 @@ subquestion: |
   
 
   ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+  
+  ${ download_screen_bottom_instructions }
+  
+  ${ collapse_template(not_seeing_email) }
+  ${ collapse_template(log_out_when_done) }
 
 progress: 100
 ---
@@ -438,9 +449,19 @@ attachment:
   fields:
       - "docket_number": ${ docket_number }
       - "trial_court_county": ${ trial_court.address.county }
-      - "users1_name": ${ users[0] }
+      - "users1_name": |
+          % if not users1_role["role_defendant"]:
+            ${ users[0] }
+          % else:
+            ${ other_parties[0] }
+          % endif
       - "users1_name__1": ${ users[0] }
-      - "other_parties1_name": ${ other_parties[0] }
+      - "other_parties1_name": |
+          % if not users1_role["role_plaintiff"]:
+            ${ other_parties[0] }
+          % else:
+            ${ users[0] }
+          % endif
       - "role_plaintiff": ${ users1_role["role_plaintiff"] }
       - "role_defendant": ${ users1_role["role_defendant"] }
       - "role_other": ${ users1_role["role_other"] }

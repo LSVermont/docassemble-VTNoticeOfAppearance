@@ -1,6 +1,5 @@
 comment: |
   Not sure why I had to upload court file to this package when it is in the VTSharedYMLFile
-  Need to set the address depending on street or mailing address entered
   Need to set the names at top of form depending on how answer the role question
   What do I do about the other role?
   
@@ -62,9 +61,6 @@ objects:
 #  Street address or P.O. Box
 #  - Note: The court will send all notices and orders to you at this mailing address.
 ---
-sections:
-  - review_form: Review your answers
----
 #################### Interview order #####################
 comment: |
   Controls order and branching logic for questions specific to this form
@@ -81,7 +77,6 @@ code: |
   nav.set_section("about")
   users1_role
   users.gather()
-  #set_parts(subtitle=str(users))
   users[0].address.city
   set_progress(32)
   users[0].daytime_phone_number
@@ -89,6 +84,7 @@ code: |
   email_consent
   nav.set_section('defendant')
   other_parties[0].name.first
+  nav.set_section('review_form')
   notice_of_appearance_preview_question
   nav.set_section('sign')
   al_form_requires_digital_signature = False
@@ -114,12 +110,14 @@ code: |
           "reached_interview_end": True,
       },
   )
+  nav.set_section('get_docs')
   a_notice_of_appearance_self_rep_download
 ---
 sections:
   - intro: Introduction
   - about: About you
   - defendant: About the defendant
+  - review_form: Review your answers
   - review: Edit your answers
   - sign: Signature
   - get_docs: Get your documents
@@ -265,12 +263,12 @@ subquestion: |
   
   ${ al_court_bundle.as_pdf(key='preview') }
 
-  Click the image to open it in a new tab. Click the "Edit answers" button
+  Tap the image to open it in a new tab. Tap the "Edit your answers" button
   to edit your answers.
 
-  ${ action_button_html(url_action('review_a_notice_of_appearance_self_rep'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_notice_of_appearance'), label='Edit your answers', color='info') }
   
-  Remember to come back to this window to continue and sign your form.
+  **Remember to come back to this window to continue and sign your form.**
 continue button field: notice_of_appearance_preview_question    
 ---
 id: your signature
@@ -396,11 +394,11 @@ event: a_notice_of_appearance_self_rep_download
 question: |
   All done
 subquestion: |
-  Thank you ${users}. Your form is ready to download and deliver.
+  Thank you ${users}. Your form is ready to download.
   
   View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
 
-  ${ action_button_html(url_action('review_notice_of_appearance'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_notice_of_appearance'), label='Edit your answers', color='info') }
   
   
   ${ al_user_bundle.download_list_html() }

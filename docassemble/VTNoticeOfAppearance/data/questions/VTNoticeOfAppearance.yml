@@ -1,20 +1,8 @@
 comment: |
-  Need to work on adding court chooser; ask for defendant name more simply; start work on Review screen
-
-
-  Ask Lemma to help me package up the things I will use on multiple interviews so I can just refer to one file in each interview
-  the style sheet from VTCourtFormsBranding
-  customized feedback form
-  customized the error message
-  ALCourtLoader and courts_list.xlsx
-  id: customized emails sent with attachments
-  id: al share form screen
-  template: asterisk
-  template: not_seeing_email
-  template: log_out_when_done
-  AL_ORGANIZATION_TITLE
-  homepage, logos, default state, github repo for feedback, etc
-  text at top of basic questions intro screen
+  Not sure why I had to upload court file to this package when it is in the VTSharedYMLFile
+  Need to set the address depending on street or mailing address entered
+  Need to set the names at top of form depending on how answer the role question
+  What do I do about the other role?
   
   
 
@@ -22,6 +10,8 @@ comment: |
 include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.ALAnyState:any_state.yml
+  - docassemble.ALToolbox:phone-number-validation.yml
+  - docassemble.VTSharedYMLFile:VTSharedYMLFile.yml
 ---
 metadata:
   title: >-
@@ -66,11 +56,11 @@ objects:
   - users: ALPeopleList.using(ask_number=True,target_number=1)
   - other_parties: ALPeopleList.using(ask_number=True,target_number=1)
 ---
-generic object: ALAddress
-template: x.address_label
-content: |
-  Street address or P.O. Box
-  - Note: The court will send all notices and orders to you at this mailing address.
+#generic object: ALAddress
+#template: x.address_label
+#content: |
+#  Street address or P.O. Box
+#  - Note: The court will send all notices and orders to you at this mailing address.
 ---
 sections:
   - review_form: Review your answers
@@ -92,17 +82,15 @@ code: |
   users1_role
   users.gather()
   #set_parts(subtitle=str(users))
-  #users[0].address.address
-  users[0].mailing_address.address
+  users[0].address.city
   set_progress(32)
-  users[0].phone_number
-  users[0].email
+  users[0].daytime_phone_number
   set_progress(48)
   email_consent
   nav.set_section('defendant')
-  other_parties.gather()
+  other_parties[0].name.first
+  notice_of_appearance_preview_question
   nav.set_section('sign')
-  signature_date
   al_form_requires_digital_signature = False
   basic_questions_signature_flow    
   interview_order_a_notice_of_appearance_self_rep = True
@@ -152,13 +140,13 @@ subquestion: |
   <p>You will need to mail, email, efile or deliver them to the court on your own. VTCourtForms will give you instructions.</p>
   </div>  
   
-  <i class="fas fa-file-text fa-2x"></i> This guided interview will produce a form that tells a Vermont court that you are participating in a court case without a lawyer. It also shares your contact information.
+  <i class="fas fa-file-text fa-2x"></i> This guided interview will produce a form that tells a Vermont court that you are participating in a court case without a lawyer. It also shares your contact information. This form is required when you take part in a court case without a lawyer, including divorce court cases.
   
-    When you sign the form, you are telling the court: "I do not have an attorney and will represent myself. If I decide to be represented by an attorney in the future, my attorney will notify the court of the change."
+    When you sign the form, you are telling the court: "I do not have an attorney (lawyer) and will represent myself. If I decide to be represented by an attorney in the future, my attorney will notify the court of the change."
   
   <i class="fas fa-clock fa-2x"></i> It may take you 10 minutes to complete this interview. 
   
-  <i class="fas fa-circle-info fa-2x"></i> It is free to use this program. This site is not a lawyer. Visit our [VTLawHelp.org website](https://vtlawhelp.org/roadmap/relief-from-abuse/step-1) for more information about xyz.
+  <i class="fas fa-circle-info fa-2x"></i> It is free to use this program. This site is not a lawyer. Visit our [VTLawHelp.org website](https://vtlawhelp.org) for more information about how to get legal help.
   
   VTCourtForms was created by Legal Services Vermont with support from the Legal Services Corporation and assistance from the Suffolk University Legal Innovation and Technology (LIT) Lab Document Assembly Line Project. We also had help from Vermont Legal Aid, Vermont Judiciary and other Vermont organizations.
   
@@ -175,7 +163,19 @@ fields:
       minlength: |
         You cannot continue unless you agree to the terms of use.        
 continue button field: al_intro_screen
-
+---
+id: choose a court
+question: |
+  Choose a court
+fields:
+  - note: |
+      Choose the county court where you will file your forms. 
+      
+      If there's an existing court case, choose the county that the case is in. Look at the papers from the court.
+      
+      Not sure what county you are in? [Check this list of cities and towns to find the county.](https://en.m.wikipedia.org/wiki/List_of_municipalities_in_Vermont#Cities)
+  - County: trial_court_index
+    code: all_courts._load_courts()['address_county'].items()
 ---
 id: users role
 question: |
@@ -201,36 +201,61 @@ fields:
 #  - "Mailing address": users1_address_mailing
 #    maxlength: 74
 ---
-id: your contact information
+id: Gather users contact information
 question: |
-  Your phone and email
+  What is your contact information?
+subquestion: |
+  Include at least **one safe way**<span style="color:red;">*</span> for the court to reach you other than by mail. 
 
-  ${ collapse_template(why_contact_info_needed_template) }
 fields:  
-
-  - Daytime phone number: users[0].phone_number
+  - Daytime phone number: users[0].daytime_phone_number
+    datatype: al_international_phone
     required: False
-  - Email address: users[0].email    
+  - Email: users[0].email    
     datatype: email
-    required: False
-    help: |
-      If you do not have a phone number or email, provide
-      specific contact instructions. For example, use a friend's phone number.
-      But the friend must be someone you can rely on to give you a
-      message.
+    required: False      
 validation code: |
-  if (not showifdef('users[0].phone_number')) and \
-      (not showifdef('users[0].email')):
-    validation_error(word("You need to provide at least one contact method."))
+  if not (showifdef('users[0].daytime_phone_number')) and not (showifdef('users[0].email')):
+    validation_error(word("You need to provide at least one contact method."), field="users[0].other_contact_method")
 ---
 id: consent to get notices by email
 question: |
   Email communications
 subquestion: | 
-  The other parties in the case must sent you a copy of all documents they file with the court. If you check the box below, the other parties may send you the documents by email instead of by mail.
+  The other parties in the case must send you a copy of all documents they file with the court. If you check the box below, the other parties may send you the documents **by email** instead of by mail.
 fields:
   - "I agree to get documents about this case by email": email_consent
     datatype: yesno
+---
+id: gather defendant name
+sets:
+  - other_parties[0].name.first
+  - other_parties[0].name.last
+question: |
+  Name of the other party
+fields:
+  - First Name: other_parties[0].name.first
+  - Middle Name: other_parties[0].name.middle
+    required: False
+  - Last Name: other_parties[0].name.last
+  - Suffix: other_parties[0].name.suffix
+    choices: 
+      - Jr
+      - Sr
+      - I
+      - II
+      - III
+    required: False
+---
+id: signature date
+question: |
+  Signature date
+fields:
+  - "Date of your signature on this form": signature_date
+    datatype: date
+    required: False
+    default: |
+      ${ today() }
 ---
 id: preview notice of appearance
 question: |
@@ -256,8 +281,8 @@ code: |
   # This is a placeholder for the addresses that will be searched
   # for matching address to court. Edit if court venue is based on 
   # a different address than the user's
-  [user.address.address for user in users.complete_elements()]
-  addresses_to_search = [user.address for user in users.complete_elements()]
+  #[user.address.address for user in users.complete_elements()]
+  #addresses_to_search = [user.address for user in users.complete_elements()]
 ---
 id: notice of appearance review screen
 event: review_notice_of_appearance
@@ -316,7 +341,7 @@ review:
   - Edit: signature_date
     button: |
       **Date of signature**:
-      ${ signature_date }
+      **${ format_date(signature_date, format='M/d/yyyy') }**
 ---
 continue button field: users.revisit
 question: |
@@ -418,19 +443,19 @@ attachment:
       - "users1_name": ${ users[0] }
       - "users1_name__1": ${ users[0] }
       - "other_parties1_name": ${ other_parties[0] }
-      - "user1_other_role": ${ other_role_description }
-      - "role_plaintiff": ${ users1_role["plaintiff"] }
-      - "role_defendant": ${ users1_role["defendant"] }
+      - "role_plaintiff": ${ users1_role["role_plaintiff"] }
+      - "role_defendant": ${ users1_role["role_defendant"] }
       - "role_other": ${ users1_role["role_other"] }
+      - "user1_other_role": ${ other_role_description }
       - "email_consent_yes": ${ email_consent }
       - "email_consent_no": ${ not email_consent }
       - "users1_address_mailing": ${ users[0].mailing_address.address }
       - "users1_address_city": ${ users[0].mailing_address.city }
       - "users1_address_state": ${ users[0].mailing_address.state }
       - "users1_address_zip": ${ users[0].mailing_address.zip }
-      - "users1_phone_number": ${ users[0].phone_number }
+      - "users1_phone_number": ${ users[0].daytime_phone_number }
       - "users1_email": ${ users[0].email }
-      - "signature_date": ${ signature_date }
+      - "signature_date": ${ format_date(signature_date, format='M/d/yyyy') }
       - "users1_signature": ${ users[0].signature_if_final(i) }
 
 

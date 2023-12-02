@@ -77,6 +77,8 @@ code: |
   set_progress(16)
   nav.set_section("about")
   users1_role
+  if users1_role["role_other"]:
+    if_other_role_who_is_plaintiff
   users.gather()
   users[0].address.city
   set_progress(32)
@@ -191,7 +193,17 @@ fields:
   - Describe your role in a couple words: other_role_description
     maxlength: 33
     show if: users1_role["role_other"]
-
+---
+id: if other role
+question: |
+  The plaintiff and defendant
+subquestion: |
+  If you are not the plaintiff or the defendant in this case, please list their names here.
+fields:
+  - "Plaintiff in this case": if_other_role_who_is_plaintiff
+    maxlength: 33
+  - "Defendant in this case": if_other_role_who_is_defendant
+    maxlength: 33
 ---
 #id: users mailing address
 #question: |

@@ -1,8 +1,8 @@
 comment: |
   Not sure why I had to upload court file to this package when it is in the VTSharedYMLFile
-  Need to set the address depending on street or mailing address entered
   Need to set the names at top of form depending on how answer the role question
   What do I do about the other role?
+  Do the review screen
   
   
 
@@ -62,9 +62,6 @@ objects:
 #  Street address or P.O. Box
 #  - Note: The court will send all notices and orders to you at this mailing address.
 ---
-sections:
-  - review_form: Review your answers
----
 #################### Interview order #####################
 comment: |
   Controls order and branching logic for questions specific to this form
@@ -80,8 +77,9 @@ code: |
   set_progress(16)
   nav.set_section("about")
   users1_role
+  if users1_role["role_other"]:
+    if_other_role_who_is_plaintiff
   users.gather()
-  #set_parts(subtitle=str(users))
   users[0].address.city
   set_progress(32)
   users[0].daytime_phone_number
@@ -89,6 +87,8 @@ code: |
   email_consent
   nav.set_section('defendant')
   other_parties[0].name.first
+  signature_date
+  nav.set_section('review')
   notice_of_appearance_preview_question
   nav.set_section('sign')
   al_form_requires_digital_signature = False
@@ -105,7 +105,6 @@ code: |
   al_intro_screen
   #notice_of_appearance_intro_screen
   interview_order_a_notice_of_appearance_self_rep
-  signature_date
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(
       persistent=True,
@@ -114,7 +113,8 @@ code: |
           "reached_interview_end": True,
       },
   )
-  a_notice_of_appearance_self_rep_download
+  nav.set_section('get_docs')
+  notice_of_appearance_download
 ---
 sections:
   - intro: Introduction
@@ -194,6 +194,17 @@ fields:
     maxlength: 33
     show if: users1_role["role_other"]
 ---
+id: if other role
+question: |
+  The plaintiff and defendant
+subquestion: |
+  If you are not the plaintiff or the defendant in this case, please list their names here.
+fields:
+  - "Plaintiff in this case": if_other_role_who_is_plaintiff
+    maxlength: 33
+  - "Defendant in this case": if_other_role_who_is_defendant
+    maxlength: 33
+---
 #id: users mailing address
 #question: |
 #  Your mailing address
@@ -251,11 +262,13 @@ id: signature date
 question: |
   Signature date
 fields:
-  - "Date of your signature on this form": signature_date
+  - "Date of your signature for this form": signature_date
     datatype: date
     required: False
     default: |
       ${ today() }
+  #- note: |
+    #${ after_last_question_we_will_generate_your_forms }
 ---
 id: preview notice of appearance
 question: |
@@ -265,12 +278,12 @@ subquestion: |
   
   ${ al_court_bundle.as_pdf(key='preview') }
 
-  Click the image to open it in a new tab. Click the "Edit answers" button
+  Tap the image to open it in a new tab. Tap the "Edit your answers" button
   to edit your answers.
 
-  ${ action_button_html(url_action('review_a_notice_of_appearance_self_rep'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_notice_of_appearance'), label='Edit your answers', color='info') }
   
-  Remember to come back to this window to continue and sign your form.
+  **Remember to come back to this window to continue and sign your form.**
 continue button field: notice_of_appearance_preview_question    
 ---
 id: your signature
@@ -288,6 +301,9 @@ id: notice of appearance review screen
 event: review_notice_of_appearance
 question: |
   Review your answers
+subquestion: |  
+  ${ review_screen_instructions }
+  
 review:
   - Edit: docket_number
     button: |
@@ -342,6 +358,8 @@ review:
     button: |
       **Date of signature**:
       **${ format_date(signature_date, format='M/d/yyyy') }**
+  - note: |
+      ${ review_screen_select_resume_will_take_moment }
 ---
 continue button field: users.revisit
 question: |
@@ -392,21 +410,24 @@ confirm: True
 
 ---
 id: download a_notice_of_appearance_self_rep
-event: a_notice_of_appearance_self_rep_download
+event: notice_of_appearance_download
 question: |
-  All done
+  Review your forms and download and/or print them
 subquestion: |
-  Thank you ${users}. Your form is ready to download and deliver.
-  
-  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+  ${ about_this_interview_version_info }
 
-  ${ action_button_html(url_action('review_notice_of_appearance'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_notice_of_appearance'), label='Edit your answers', color='info') }
   
   
   ${ al_user_bundle.download_list_html() }
   
 
   ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+  
+  ${ download_screen_bottom_instructions }
+  
+  ${ collapse_template(not_seeing_email) }
+  ${ collapse_template(log_out_when_done) }
 
 progress: 100
 ---
@@ -440,23 +461,50 @@ attachment:
   fields:
       - "docket_number": ${ docket_number }
       - "trial_court_county": ${ trial_court.address.county }
-      - "users1_name": ${ users[0] }
+      - "users1_name": |
+          % if not users1_role["role_defendant"]:
+            ${ users[0] }
+          % else:
+            ${ other_parties[0] }
+          % endif
       - "users1_name__1": ${ users[0] }
-      - "other_parties1_name": ${ other_parties[0] }
+      - "other_parties1_name": |
+          % if not users1_role["role_plaintiff"]:
+            ${ other_parties[0] }
+          % else:
+            ${ users[0] }
+          % endif
       - "role_plaintiff": ${ users1_role["role_plaintiff"] }
       - "role_defendant": ${ users1_role["role_defendant"] }
       - "role_other": ${ users1_role["role_other"] }
       - "user1_other_role": ${ other_role_description }
       - "email_consent_yes": ${ email_consent }
       - "email_consent_no": ${ not email_consent }
-      - "users1_address_mailing": ${ users[0].mailing_address.address }
-      - "users1_address_city": ${ users[0].mailing_address.city }
-      - "users1_address_state": ${ users[0].mailing_address.state }
-      - "users1_address_zip": ${ users[0].mailing_address.zip }
+      - "users1_address_mailing": |
+          % if users_mailing_address_different:
+            ${ users[0].mailing_address.address }
+          % else:
+            ${ users[0].address.address }
+          % endif
+      - "users1_address_city": |
+          % if users_mailing_address_different:
+            ${ users[0].mailing_address.city }
+          % else:
+            ${ users[0].address.city }
+          % endif
+      - "users1_address_state": |
+          % if users_mailing_address_different:
+            ${ users[0].mailing_address.state }
+          % else:
+            ${ users[0].address.state }
+          % endif
+      - "users1_address_zip": |
+          % if users_mailing_address_different:
+            ${ users[0].mailing_address.zip }
+          % else:
+            ${ users[0].address.zip }
+          % endif
       - "users1_phone_number": ${ users[0].daytime_phone_number }
       - "users1_email": ${ users[0].email }
       - "signature_date": ${ format_date(signature_date, format='M/d/yyyy') }
       - "users1_signature": ${ users[0].signature_if_final(i) }
-
-
-

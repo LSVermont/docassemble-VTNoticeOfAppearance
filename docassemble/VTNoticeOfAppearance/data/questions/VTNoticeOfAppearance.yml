@@ -449,14 +449,31 @@ attachment:
       - "user1_other_role": ${ other_role_description }
       - "email_consent_yes": ${ email_consent }
       - "email_consent_no": ${ not email_consent }
-      - "users1_address_mailing": ${ users[0].mailing_address.address }
-      - "users1_address_city": ${ users[0].mailing_address.city }
-      - "users1_address_state": ${ users[0].mailing_address.state }
-      - "users1_address_zip": ${ users[0].mailing_address.zip }
+      - "users1_address_mailing": |
+          % if users_mailing_address_different:
+            ${ users[0].mailing_address.address }
+          % else:
+            ${ users[0].address.address }
+          % endif
+      - "users1_address_city": |
+          % if users_mailing_address_different:
+            ${ users[0].mailing_address.city }
+          % else:
+            ${ users[0].address.city }
+          % endif
+      - "users1_address_state": |
+          % if users_mailing_address_different:
+            ${ users[0].mailing_address.state }
+          % else:
+            ${ users[0].address.state }
+          % endif
+      - "users1_address_zip": |
+          % if users_mailing_address_different:
+            ${ users[0].mailing_address.zip }
+          % else:
+            ${ users[0].address.zip }
+          % endif
       - "users1_phone_number": ${ users[0].daytime_phone_number }
       - "users1_email": ${ users[0].email }
       - "signature_date": ${ format_date(signature_date, format='M/d/yyyy') }
       - "users1_signature": ${ users[0].signature_if_final(i) }
-
-
-

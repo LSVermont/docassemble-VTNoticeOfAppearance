@@ -1,8 +1,7 @@
 comment: |
-  Not sure why I had to upload court file to this package when it is in the VTSharedYMLFile
-  Need to set the names at top of form depending on how answer the role question
-  What do I do about the other role?
+  Not sure why I had to upload court file to this package when it is in the VTSharedYMLFile package
   Do the review screen
+
   
   
 
@@ -15,11 +14,11 @@ include:
 ---
 metadata:
   title: >-
-    Notice of Appearance (Self-Represented) for Vermont
+    Notice of Appearance (Self-Represented) for Vermont Family Court
   short title: >-
-    VT Notice of Appearance
+    VT Notice of Appearance (Family Court)
   description: |-
-    This interview helps you tell a Vermont court you are participating in a court case without a lawyer.
+    This interview helps you tell a Vermont Family Court you are participating in a court case without a lawyer.
   tags:
     - "FA-06-00-00-00"
   authors:
@@ -74,22 +73,25 @@ code: |
   #user_ask_role = "plaintiff"
   trial_court.address.address
   docket_number
-  set_progress(16)
+  set_progress(10)
   nav.set_section("about")
   users1_role
   if users1_role["role_other"]:
-    if_other_role_who_is_plaintiff
+    case_plaintiff_name
+  set_progress(20)
   users.gather()
   users[0].address.city
   set_progress(32)
   users[0].daytime_phone_number
-  set_progress(48)
+  set_progress(50)
   email_consent
   nav.set_section('defendant')
   other_parties[0].name.first
+  set_progress(78)
   signature_date
   nav.set_section('review')
   notice_of_appearance_preview_question
+  set_progress(94)
   nav.set_section('sign')
   al_form_requires_digital_signature = False
   basic_questions_signature_flow    
@@ -140,7 +142,7 @@ subquestion: |
   <p>You will need to mail, email, efile or deliver them to the court on your own. VTCourtForms will give you instructions.</p>
   </div>  
   
-  <i class="fas fa-file-text fa-2x"></i> This guided interview will produce a form that tells a Vermont court that you are participating in a court case without a lawyer. It also shares your contact information. This form is required when you take part in a court case without a lawyer, including divorce court cases.
+  <i class="fas fa-file-text fa-2x"></i> This guided interview will produce a Family Court form that tells a Vermont court that you are participating in a court case without a lawyer. It also shares your contact information. This form is required when you take part in a Family Court case without a lawyer, including divorce cases.
   
     When you sign the form, you are telling the court: "I do not have an attorney (lawyer) and will represent myself. If I decide to be represented by an attorney in the future, my attorney will notify the court of the change."
   
@@ -190,20 +192,20 @@ fields:
     - "You are the \"Plaintiff,\" which means you started the case": role_plaintiff
     - "You are the \"Defendant,\" which means you did not start the case but are named in the case": role_defendant
     - "You have another role": role_other
-  - Describe your role in a couple words: other_role_description
-    maxlength: 33
-    show if: users1_role["role_other"]
+
 ---
 id: if other role
 question: |
-  The plaintiff and defendant
+  The plaintiff and defendant and your role
 subquestion: |
   If you are not the plaintiff or the defendant in this case, please list their names here.
 fields:
-  - "Plaintiff in this case": if_other_role_who_is_plaintiff
-    maxlength: 33
-  - "Defendant in this case": if_other_role_who_is_defendant
-    maxlength: 33
+  - "Plaintiff in this case": case_plaintiff_name
+    maxlength: 28
+  - "Defendant in this case": case_defendant_name
+    maxlength: 28
+  - Describe your role in a couple of words: other_role_description
+    maxlength: 28
 ---
 #id: users mailing address
 #question: |
@@ -305,65 +307,62 @@ subquestion: |
   ${ review_screen_instructions }
   
 review:
-  - Edit: docket_number
-    button: |
-      **Docket number**:
-      ${ docket_number }
   - Edit: trial_court
     button: |
-      **Trial court**
-  
-      % if defined("trial_court.address.county"):
-      * address: ${ trial_court.address.block() }
+      Filing this form in the Family Court of: **${ trial_court.address.county } County**
+  - Edit: docket_number
+    button: |
+      Case number: 
+      % if docket_number != '':
+      **${ docket_number }**
+      % else:
+      **Unknown**
       % endif
   - Edit: users.revisit
     button: |
-      **Users**
+      About you (name, address, contact info, signature)
 
       % for item in users:
-        * ${ item }
+        * **${ item }**
       % endfor
-  - Edit: other_parties.revisit
-    button: |
-      **Other parties**
-
-      % for item in other_parties:
-        * ${ item }
-      % endfor
-  #- Edit: user1_role
-  #  button: |
-  #    **Describe your role**:
-  #    ${ user1_other_role }
-  #- Edit: role_plaintiff
-  #  button: |
-  #    **Role of "Plaintiff," which means you started the case**:
-  #    ${ word(yesno(role_plaintiff)) }
-  #- Edit: role_defendant
-  #  button: |
-  #    **Role of "Defendant," which means you did not start the case**:
-  #    ${ word(yesno(role_defendant)) }
-  - Edit: other_role_description
-    button: |
-      **Another role**:
-      ${ showifdef('other_role_description') }
   - Edit: email_consent
     button: |
-      **Do you consent to getting email about this case?**:
-      ${ word(yesno(email_consent)) }
-  - Edit: users1_address_mailing
+      Do you consent to getting email about this case?:
+      **${ word(yesno(email_consent)) }**
+  - Edit:
+    - users1_role
+    button: |      
+      Your role in this case:     
+      % if users1_role["role_plaintiff"]:
+        **Plaintiff**
+      % endif
+      % if users1_role["role_defendant"]:
+        **Defendant**
+      % endif
+      % if users1_role["role_other"]:
+        **${ showifdef('other_role_description') }**
+
+        Plaintiff's name in this case: **${ case_plaintiff_name }**
+      
+        Defendant's name in this case: **${ case_defendant_name }**
+      % endif
+  - Edit: other_parties.revisit
     button: |
-      **Your mailing address**:
-      ${ users1_address_mailing }
+      Name of the other party
+
+      % for item in other_parties:
+        * **${ item }**
+      % endfor
   - Edit: signature_date
     button: |
-      **Date of signature**:
+      Date of signature:
       **${ format_date(signature_date, format='M/d/yyyy') }**
   - note: |
-      ${ review_screen_select_resume_will_take_moment }
+      **${ review_screen_select_resume_will_take_moment }**
 ---
 continue button field: users.revisit
 question: |
-  Edit users
+  Edit your information
 subquestion: |
   ${ users.table }
 
@@ -376,8 +375,10 @@ columns:
       row_item.name.full() if defined("row_item.name.first") else ""
   - Address: |
       row_item.address.block() if defined("row_item.address.zip") else ""
+  - Mailing (if different): |
+      row_item.mailing_address if users_mailing_address_different else ""
   - Daytime phone number: |
-      row_item.phone_number if defined("row_item.phone_number") else ""
+      row_item.daytime_phone_number if defined("row_item.daytime_phone_number") else ""
   - Email: |
       row_item.email if defined("row_item.email") else ""
   - Signature: |
@@ -385,7 +386,8 @@ columns:
 edit:
   - name.first
   - address.zip
-  - phone_number
+  - mailing_address.address
+  - daytime_phone_number
   - email
   - signature
 confirm: True
@@ -414,7 +416,7 @@ event: notice_of_appearance_download
 question: |
   Review your forms and download and/or print them
 subquestion: |
-  ${ about_this_interview_version_info }
+  ${ download_screen_instructions }
 
   ${ action_button_html(url_action('review_notice_of_appearance'), label='Edit your answers', color='info') }
   
@@ -461,18 +463,26 @@ attachment:
   fields:
       - "docket_number": ${ docket_number }
       - "trial_court_county": ${ trial_court.address.county }
-      - "users1_name": |
-          % if not users1_role["role_defendant"]:
+      - "users1_name": ${ users[0] }
+      - "case_plaintiff_name": |
+          % if users1_role["role_plaintiff"]:
             ${ users[0] }
-          % else:
+          % endif
+          % if users1_role["role_defendant"]:
             ${ other_parties[0] }
           % endif
-      - "users1_name__1": ${ users[0] }
-      - "other_parties1_name": |
-          % if not users1_role["role_plaintiff"]:
-            ${ other_parties[0] }
-          % else:
+          % if users1_role["role_other"]:
+            ${ case_plaintiff_name }
+          % endif
+      - "case_defendant_name": |
+          % if users1_role["role_defendant"]:
             ${ users[0] }
+          % endif
+          % if users1_role["role_plaintiff"]:
+            ${ other_parties[0] }
+          % endif
+          % if users1_role["role_other"]:
+            ${ case_defendant_name }
           % endif
       - "role_plaintiff": ${ users1_role["role_plaintiff"] }
       - "role_defendant": ${ users1_role["role_defendant"] }

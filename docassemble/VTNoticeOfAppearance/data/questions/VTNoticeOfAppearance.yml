@@ -1,6 +1,7 @@
 comment: |
+  This interview will be part of the Divorce package. It should also be its own stand-alone interview.
   Not sure why I had to upload court file to this package when it is in the VTSharedYMLFile package
-  Do the review screen
+  Can we make it so that if a person checks Yes, I want documents emailed to me, that they have provided an email address?
 
   
   
@@ -14,7 +15,7 @@ include:
 ---
 metadata:
   title: >-
-    Notice of Appearance (Self-Represented) for Vermont Family Court
+    Notice of Appearance for Vermont Family Court
   short title: >-
     VT Notice of Appearance (Family Court)
   description: |-
@@ -128,21 +129,12 @@ sections:
 ---
 id: basic questions intro screen
 question: |
-  **Notice of Appearance for Self-Represented Party in Vermont**
+  **Notice of Appearance for Self-Represented Person/Party in Vermont**
 subquestion: |  
-  <i>THIS TOOL IS IN DEVELOPMENT & UNDERGOING REVIEW. Thank you, reviewers!</i>
+
+  <p>${ intro_vtcourtforms_3_steps }</p>
   
-  <div class="border-around-text">
-  
-  <p>${ AL_ORGANIZATION_TITLE } can help you complete and download forms in 3 steps:</p>
-  <ul><li><b>Step 1:</b> Answer questions that will fill in court forms for you.</li>
-  <li><b>Step 2:</b> Preview the completed forms and edit answers, if needed.</li>
-  <li><b>Step 3:</b> Download, save, print or email the final forms.</li></ul>
-  
-  <p>You will need to mail, email, efile or deliver them to the court on your own. VTCourtForms will give you instructions.</p>
-  </div>  
-  
-  <i class="fas fa-file-text fa-2x"></i> This guided interview will produce a Family Court form that tells a Vermont court that you are participating in a court case without a lawyer. It also shares your contact information. This form is required when you take part in a Family Court case without a lawyer, including divorce cases.
+  <i class="fas fa-file-text fa-2x"></i> This guided interview will produce a Family Court form that tells a Vermont court that you are participating in a court case without a lawyer. It also shares your contact information. This form is required when you take part in a Family Court case without a lawyer -- including divorce cases.
   
     When you sign the form, you are telling the court: "I do not have an attorney (lawyer) and will represent myself. If I decide to be represented by an attorney in the future, my attorney will notify the court of the change."
   
@@ -150,9 +142,7 @@ subquestion: |
   
   <i class="fas fa-circle-info fa-2x"></i> It is free to use this program. This site is not a lawyer. Visit our [VTLawHelp.org website](https://vtlawhelp.org) for more information about how to get legal help.
   
-  VTCourtForms was created by Legal Services Vermont with support from the Legal Services Corporation and assistance from the Suffolk University Legal Innovation and Technology (LIT) Lab Document Assembly Line Project. We also had help from Vermont Legal Aid, Vermont Judiciary and other Vermont organizations.
-  
-  [FILE big_logo, 30%, Legal Services Vermont]
+  <p>${ intro_vtcourtforms_created_by }</p>
 
 fields:
   - To continue, please accept our [terms of use](https://vtlawhelp.org/vtcourtforms/terms-of-use).: acknowledged_information_use

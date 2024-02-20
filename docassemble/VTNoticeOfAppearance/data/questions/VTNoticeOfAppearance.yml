@@ -209,26 +209,24 @@ question: |
   What is your contact information?
 subquestion: |
   Include at least **one safe way**<span style="color:red;">*</span> for the court to reach you other than by mail. 
-
-fields:  
+fields: 
   - Daytime phone number: users[0].daytime_phone_number
     datatype: al_international_phone
     required: False
   - Email: users[0].email    
     datatype: email
     required: False      
-validation code: |
-  if not (showifdef('users[0].daytime_phone_number')) and not (showifdef('users[0].email')):
-    validation_error(word("You need to provide at least one contact method."), field="users[0].other_contact_method")
----
-id: consent to get notices by email
-question: |
-  Email communications
-subquestion: | 
-  The other parties in the case must send you a copy of all documents they file with the court. If you check the box below, the other parties may send you the documents **by email** instead of by mail.
-fields:
+  - note: |
+      ### Email communications
+  - note: |
+      The other parties in the case must send you a copy of all documents they file with the court. If you check the box below, the other parties may send you the documents **by email** instead of by mail.
   - "I agree to get documents about this case by email": email_consent
     datatype: yesno
+validation code: |
+  if not (showifdef('users[0].daytime_phone_number')) and not (showifdef('users[0].email')):
+    validation_error(word("You need to provide at least one contact method."), field="users[0].daytime_phone_number")
+  if (showifdef('email_consent')) and not (showifdef('users[0].email')):
+    validation_error(word("You need to provide an email."), field="users[0].email")
 ---
 id: gather defendant name
 sets:

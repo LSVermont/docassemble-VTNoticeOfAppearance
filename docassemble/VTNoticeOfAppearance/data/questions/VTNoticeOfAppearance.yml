@@ -1,15 +1,11 @@
 comment: |
   This interview will be part of the Divorce package. It should also be its own stand-alone interview.
-  Not sure why I had to upload court file to this package when it is in the VTSharedYMLFile package
-  Can we make it so that if a person checks Yes, I want documents emailed to me, that they have provided an email address?
-
-  
+  Need to use depends on or on change for editing the county court on the review screen
   
 
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
-  - docassemble.ALAnyState:any_state.yml
   - docassemble.ALToolbox:phone-number-validation.yml
   - docassemble.VTSharedYMLFile:VTSharedYMLFile.yml
 ---
@@ -30,7 +26,6 @@ metadata:
     https://vtlawhelp.org/roadmap/divorce/step-3
   help_page_title: >-
     Divorce Roadmap
-  allowed_courts: []
   typical_role: "plaintiff"
   al_weaver_version: "1.10.2"
   generated_on: "2023-11-10"
@@ -67,9 +62,6 @@ comment: |
   Controls order and branching logic for questions specific to this form
 id: interview_order_a_notice_of_appearance_self_rep
 code: |
-  # Set the allowed courts for this interview
-  allowed_courts = []
-  #nav.set_section("review_form")
   #user_role = "plaintiff"
   #user_ask_role = "plaintiff"
   trial_court.address.address
@@ -91,6 +83,7 @@ code: |
   set_progress(78)
   signature_date
   nav.set_section('review')
+  trial_court.address.county
   notice_of_appearance_preview_question
   set_progress(94)
   nav.set_section('sign')
@@ -297,7 +290,7 @@ subquestion: |
   ${ review_screen_instructions }
   
 review:
-  - Edit: trial_court
+  - Edit: trial_court_index
     button: |
       Filing this form in the Family Court of: **${ trial_court.address.county } County**
   - Edit: docket_number
@@ -484,7 +477,11 @@ attachment:
           % if users_mailing_address_different:
             ${ users[0].mailing_address.address }
           % else:
+            % if users[0].address.unit != '':
+            ${ users[0].address.address }, Unit ${ showifdef("users[0].address.unit") }
+            % else:
             ${ users[0].address.address }
+            % endif
           % endif
       - "users1_address_city": |
           % if users_mailing_address_different:

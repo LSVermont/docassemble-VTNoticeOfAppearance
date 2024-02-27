@@ -201,7 +201,7 @@ id: Gather users contact information
 question: |
   What is your contact information?
 subquestion: |
-  Include at least **one safe way**<span style="color:red;">*</span> for the court to reach you other than by mail. 
+  Include **at least one safe way**<span style="color:red;">*</span> for the court to reach you other than by mail. 
 fields: 
   - Daytime phone number: users[0].daytime_phone_number
     datatype: al_international_phone

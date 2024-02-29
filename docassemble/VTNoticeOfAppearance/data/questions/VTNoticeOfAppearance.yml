@@ -70,8 +70,8 @@ code: |
   set_progress(10)
   nav.set_section("about")
   users1_role
-  if users1_role["role_other"]:
-    case_plaintiff_name
+  #if users1_role["role_other"]:
+    #case_plaintiff_name
   set_progress(20)
   users.gather()
   users[0].address.city
@@ -176,20 +176,19 @@ fields:
     - "You are the \"Plaintiff,\" which means you started the case": role_plaintiff
     - "You are the \"Defendant,\" which means you did not start the case but are named in the case": role_defendant
     - "You have another role": role_other
-
----
-id: if other role
-question: |
-  The plaintiff and defendant and your role
-subquestion: |
-  If you are not the plaintiff or the defendant in this case, please answer these questions.
-fields:
+  - "Describe your role in a couple of words": other_role_description
+    maxlength: 28
+    js show if: |
+      val("users1_role") == "role_other"
   - "Plaintiff in this case": case_plaintiff_name
     maxlength: 28
+    js show if: |
+      val("users1_role") == "role_other"
   - "Defendant in this case": case_defendant_name
     maxlength: 28
-  - Describe your role in a couple of words: other_role_description
-    maxlength: 28
+    js show if: |
+      val("users1_role") == "role_other"
+
 ---
 #id: users mailing address
 #question: |

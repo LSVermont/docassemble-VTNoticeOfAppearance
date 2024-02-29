@@ -322,13 +322,12 @@ review:
       % endif
       % if users1_role["role_other"]:
       **${ other_role_description }**
-      % endif
-  - Edit:
-    - case_plaintiff_name
-    button: |  
+      
       Plaintiff's name in this case: **${ case_plaintiff_name }**
       
       Defendant's name in this case: **${ case_defendant_name }**
+      % endif
+   
 
   - Edit: other_parties.revisit
     button: |

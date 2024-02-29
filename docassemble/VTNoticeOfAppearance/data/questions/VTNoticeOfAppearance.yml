@@ -240,6 +240,8 @@ fields:
       - II
       - III
     required: False
+  - note: |
+      ${ after_last_question_we_will_generate_your_forms }
 ---
 id: signature date
 question: |
@@ -250,8 +252,6 @@ fields:
     required: False
     default: |
       ${ today() }
-  #- note: |
-    #${ after_last_question_we_will_generate_your_forms }
 ---
 id: preview notice of appearance
 question: |

@@ -127,7 +127,7 @@ subquestion: |
 
   <p>${ intro_vtcourtforms_3_steps }</p>
   
-  <i class="fas fa-file-text fa-2x"></i> This guided interview will produce a Family Court form that tells a Vermont court that you are participating in a court case without a lawyer. It also shares your contact information. This form is required when you take part in a Family Court case without a lawyer -- including divorce cases.
+  <i class="fas fa-file-text fa-2x"></i> This guided interview will produce Family Division court form 400-00831 -- Notice of Appearance for Self-Represented Party. The form is required when you take part in a Vermont family court case without a lawyer -- including divorce cases.
   
     When you sign the form, you are telling the court: "I do not have an attorney (lawyer) and will represent myself. If I decide to be represented by an attorney in the future, my attorney will notify the court of the change."
   
@@ -201,7 +201,7 @@ id: Gather users contact information
 question: |
   What is your contact information?
 subquestion: |
-  Include **at least one safe way**<span style="color:red;">*</span> for the court to reach you other than by mail. 
+  Include **at least one safe way**<span style="color:#d30404;">*</span> for the court to reach you other than by mail. 
 fields: 
   - Daytime phone number: users[0].daytime_phone_number
     datatype: al_international_phone
@@ -210,8 +210,8 @@ fields:
     datatype: email
     required: False      
   - note: |
-      ### Email communications
-  - note: |
+      <h2 class="h4">Email communications</h2>
+
       The other parties in the case must send you a copy of all documents they file with the court. If you check the box below, the other parties may send you the documents **by email** instead of by mail.
   - "I agree to get documents about this case by email": email_consent
     datatype: yesno

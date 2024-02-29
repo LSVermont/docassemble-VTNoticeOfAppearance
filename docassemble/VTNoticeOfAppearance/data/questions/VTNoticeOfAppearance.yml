@@ -1,6 +1,7 @@
 comment: |
   This interview will be part of the Divorce package. It should also be its own stand-alone interview.
-  Need to use depends on or on change for editing the county court on the review screen
+  Note that on this stand-alone version, the user can identify themselves as the plaintiff or defendant or other role.
+  Need to use depends on or on change for editing the county court on the review screen and seeing the change on the PDF
   
 
 ---
@@ -69,8 +70,8 @@ code: |
   set_progress(10)
   nav.set_section("about")
   users1_role
-  if users1_role["role_other"]:
-    case_plaintiff_name
+  #if users1_role["role_other"]:
+    #case_plaintiff_name
   set_progress(20)
   users.gather()
   users[0].address.city
@@ -127,7 +128,7 @@ subquestion: |
 
   <p>${ intro_vtcourtforms_3_steps }</p>
   
-  <i class="fas fa-file-text fa-2x"></i> This guided interview will produce a Family Court form that tells a Vermont court that you are participating in a court case without a lawyer. It also shares your contact information. This form is required when you take part in a Family Court case without a lawyer -- including divorce cases.
+  <i class="fas fa-file-text fa-2x"></i> This guided interview will produce Family Division court form 400-00831 -- Notice of Appearance for Self-Represented Party. The form is required when you take part in a Vermont family court case without a lawyer -- including divorce cases.
   
     When you sign the form, you are telling the court: "I do not have an attorney (lawyer) and will represent myself. If I decide to be represented by an attorney in the future, my attorney will notify the court of the change."
   
@@ -175,20 +176,19 @@ fields:
     - "You are the \"Plaintiff,\" which means you started the case": role_plaintiff
     - "You are the \"Defendant,\" which means you did not start the case but are named in the case": role_defendant
     - "You have another role": role_other
-
----
-id: if other role
-question: |
-  The plaintiff and defendant and your role
-subquestion: |
-  If you are not the plaintiff or the defendant in this case, please list their names here.
-fields:
+  - "Describe your role in a couple of words": other_role_description
+    maxlength: 28
+    js show if: |
+      val("users1_role") == "role_other"
   - "Plaintiff in this case": case_plaintiff_name
     maxlength: 28
+    js show if: |
+      val("users1_role") == "role_other"
   - "Defendant in this case": case_defendant_name
     maxlength: 28
-  - Describe your role in a couple of words: other_role_description
-    maxlength: 28
+    js show if: |
+      val("users1_role") == "role_other"
+
 ---
 #id: users mailing address
 #question: |
@@ -201,7 +201,7 @@ id: Gather users contact information
 question: |
   What is your contact information?
 subquestion: |
-  Include **at least one safe way**<span style="color:red;">*</span> for the court to reach you other than by mail. 
+  Include **at least one safe way**<span style="color:#d30404;">*</span> for the court to reach you other than by mail. 
 fields: 
   - Daytime phone number: users[0].daytime_phone_number
     datatype: al_international_phone
@@ -210,8 +210,8 @@ fields:
     datatype: email
     required: False      
   - note: |
-      ### Email communications
-  - note: |
+      <h2 class="h4">Email communications</h2>
+
       The other parties in the case must send you a copy of all documents they file with the court. If you check the box below, the other parties may send you the documents **by email** instead of by mail.
   - "I agree to get documents about this case by email": email_consent
     datatype: yesno
@@ -315,18 +315,20 @@ review:
     button: |      
       Your role in this case:     
       % if users1_role["role_plaintiff"]:
-        **Plaintiff**
+      **Plaintiff**
       % endif
       % if users1_role["role_defendant"]:
-        **Defendant**
+      **Defendant**
       % endif
       % if users1_role["role_other"]:
-        **${ showifdef('other_role_description') }**
-
-        Plaintiff's name in this case: **${ case_plaintiff_name }**
+      **${ other_role_description }**
       
-        Defendant's name in this case: **${ case_defendant_name }**
+      Plaintiff's name in this case: **${ case_plaintiff_name }**
+      
+      Defendant's name in this case: **${ case_defendant_name }**
       % endif
+   
+
   - Edit: other_parties.revisit
     button: |
       Name of the other party
@@ -460,7 +462,7 @@ attachment:
             ${ users[0] }
           % endif
           % if users1_role["role_plaintiff"]:
-            ${ other_parties[0] }
+            ${ other_parties.short_list(2) }
           % endif
           % if users1_role["role_other"]:
             ${ case_defendant_name }

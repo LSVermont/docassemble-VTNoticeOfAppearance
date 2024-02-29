@@ -1,6 +1,7 @@
 comment: |
   This interview will be part of the Divorce package. It should also be its own stand-alone interview.
-  Need to use depends on or on change for editing the county court on the review screen
+  Note that on this stand-alone version, the user can identify themselves as the plaintiff or defendant or other role.
+  Need to use depends on or on change for editing the county court on the review screen and seeing the change on the PDF
   
 
 ---
@@ -181,7 +182,7 @@ id: if other role
 question: |
   The plaintiff and defendant and your role
 subquestion: |
-  If you are not the plaintiff or the defendant in this case, please list their names here.
+  If you are not the plaintiff or the defendant in this case, please answer these questions.
 fields:
   - "Plaintiff in this case": case_plaintiff_name
     maxlength: 28
@@ -315,18 +316,21 @@ review:
     button: |      
       Your role in this case:     
       % if users1_role["role_plaintiff"]:
-        **Plaintiff**
+      **Plaintiff**
       % endif
       % if users1_role["role_defendant"]:
-        **Defendant**
+      **Defendant**
       % endif
       % if users1_role["role_other"]:
-        **${ showifdef('other_role_description') }**
-
-        Plaintiff's name in this case: **${ case_plaintiff_name }**
-      
-        Defendant's name in this case: **${ case_defendant_name }**
+      **${ other_role_description }**
       % endif
+  - Edit:
+    - case_plaintiff_name
+    button: |  
+      Plaintiff's name in this case: **${ case_plaintiff_name }**
+      
+      Defendant's name in this case: **${ case_defendant_name }**
+
   - Edit: other_parties.revisit
     button: |
       Name of the other party
@@ -460,7 +464,7 @@ attachment:
             ${ users[0] }
           % endif
           % if users1_role["role_plaintiff"]:
-            ${ other_parties[0] }
+            ${ other_parties.short_list(2) }
           % endif
           % if users1_role["role_other"]:
             ${ case_defendant_name }

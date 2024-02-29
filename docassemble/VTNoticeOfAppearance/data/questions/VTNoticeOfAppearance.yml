@@ -1,7 +1,6 @@
 comment: |
   This interview will be part of the Divorce package. It should also be its own stand-alone interview.
   Note that on this stand-alone version, the user can identify themselves as the plaintiff or defendant or other role.
-  Need to use depends on or on change for editing the county court on the review screen and seeing the change on the PDF
   
 
 ---
@@ -16,7 +15,7 @@ metadata:
   short title: >-
     VT Notice of Appearance (Family Court)
   description: |-
-    This interview helps you tell a Vermont Family Court you are participating in a court case without a lawyer.
+    This interview helps you tell a Vermont Family Court you are participating in a court case without a lawyer. Based on paper version 400-00831 Notice of Appearance for Self-Represented Party (9/2022).
   tags:
     - "FA-06-00-00-00"
   authors:
@@ -115,7 +114,7 @@ code: |
 ---
 sections:
   - intro: Introduction
-  - about: About you
+  - about: About the plaintiff
   - defendant: About the defendant
   - review: Edit your answers
   - sign: Signature
@@ -240,6 +239,8 @@ fields:
       - II
       - III
     required: False
+  - note: |
+      ${ after_last_question_we_will_generate_your_forms }
 ---
 id: signature date
 question: |
@@ -250,8 +251,6 @@ fields:
     required: False
     default: |
       ${ today() }
-  #- note: |
-    #${ after_last_question_we_will_generate_your_forms }
 ---
 id: preview notice of appearance
 question: |

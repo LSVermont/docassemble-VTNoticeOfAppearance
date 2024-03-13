@@ -114,8 +114,8 @@ code: |
 ---
 sections:
   - intro: Introduction
-  - about: About the plaintiff
-  - defendant: About the defendant
+  - about: About you
+  - defendant: About the other party
   - review: Edit your answers
   - sign: Signature
   - get_docs: Get your documents
@@ -239,8 +239,7 @@ fields:
       - II
       - III
     required: False
-  - note: |
-      ${ after_last_question_we_will_generate_your_forms }
+
 ---
 id: signature date
 question: |
@@ -251,6 +250,8 @@ fields:
     required: False
     default: |
       ${ today() }
+  - note: |
+      ${ after_last_question_we_will_generate_your_forms }
 ---
 id: preview notice of appearance
 question: |
@@ -300,7 +301,7 @@ review:
       % endif
   - Edit: users.revisit
     button: |
-      About you (name, address, contact info, signature)
+      About you (edit your name, address, contact info, signature)
 
       % for item in users:
         * **${ item }**
@@ -327,7 +328,13 @@ review:
       Defendant's name in this case: **${ case_defendant_name }**
       % endif
    
-
+#  - Edit: other_parties[0].name.first
+#    button: |
+#      Name of the other party
+#
+#      % for item in other_parties:
+#        * **${ item }**
+#      % endfor  
   - Edit: other_parties.revisit
     button: |
       Name of the other party

@@ -211,8 +211,10 @@ fields:
   - note: |
       <h2 class="h4">Email communications</h2>
 
-      The other parties in the case must send you a copy of all documents they file with the court. If you check the box below, the other parties may send you the documents **by email** instead of by mail.
-  - "I agree to get documents about this case by email": email_consent
+      The other parties in the case must send you a copy of all documents they file with the court. If you check the box below, the other parties may send you the documents **only by email.** 
+      If you select this option, be sure to check your email often.
+
+  - "I agree to get documents about this case by email only": email_consent
     datatype: yesno
 validation code: |
   if not (showifdef('users[0].daytime_phone_number')) and not (showifdef('users[0].email')):

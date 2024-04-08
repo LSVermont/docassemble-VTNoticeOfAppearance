@@ -6,7 +6,7 @@ include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.ALToolbox:phone-number-validation.yml
   - docassemble.VTSharedYMLFile:VTSharedYMLFile.yml
-  - VTNoticeOfApperance_to_include.yml
+  - VTNoticeOfAppearance_to_include.yml
 ---
 metadata:
   title: >-

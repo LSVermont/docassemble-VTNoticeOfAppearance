@@ -194,7 +194,7 @@ review:
     - users1_role
     button: |      
       Your role in this case:     
-      % if users1_role == "role_plaintiff":
+      % if users1_role["role_plaintiff"]:
       **Plaintiff**
       % endif
       % if users1_role["role_defendant"]:

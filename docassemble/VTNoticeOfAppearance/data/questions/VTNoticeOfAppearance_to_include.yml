@@ -132,8 +132,6 @@ fields:
     required: False
     default: |
       ${ today() }
-  - note: |
-      ${ after_last_question_we_will_generate_your_forms }
 ---
 id: preview notice of appearance
 question: |
@@ -196,7 +194,7 @@ review:
     - users1_role
     button: |      
       Your role in this case:     
-      % if users1_role["role_plaintiff"]:
+      % if users1_role == "role_plaintiff":
       **Plaintiff**
       % endif
       % if users1_role["role_defendant"]:

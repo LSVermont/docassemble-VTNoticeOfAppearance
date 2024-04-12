@@ -245,7 +245,7 @@ columns:
   - Address: |
       row_item.address.block() if defined("row_item.address.zip") else ""
   - Mailing (if different): |
-      row_item.mailing_address if users_mailing_address_different else ""
+      row_item.mailing_address if users1_mailing_address_different else ""
   - Daytime phone number: |
       row_item.daytime_phone_number if defined("row_item.daytime_phone_number") else ""
   - Email: |
@@ -355,7 +355,7 @@ attachment:
       - "email_consent_yes": ${ email_consent }
       - "email_consent_no": ${ not email_consent }
       - "users1_address_mailing": |
-          % if users_mailing_address_different:
+          % if users1_mailing_address_different:
             ${ users[0].mailing_address.address }
           % else:
             % if users[0].address.unit != '':
@@ -365,19 +365,19 @@ attachment:
             % endif
           % endif
       - "users1_address_city": |
-          % if users_mailing_address_different:
+          % if users1_mailing_address_different:
             ${ users[0].mailing_address.city }
           % else:
             ${ users[0].address.city }
           % endif
       - "users1_address_state": |
-          % if users_mailing_address_different:
+          % if users1_mailing_address_different:
             ${ users[0].mailing_address.state }
           % else:
             ${ users[0].address.state }
           % endif
       - "users1_address_zip": |
-          % if users_mailing_address_different:
+          % if users1_mailing_address_different:
             ${ users[0].mailing_address.zip }
           % else:
             ${ users[0].address.zip }

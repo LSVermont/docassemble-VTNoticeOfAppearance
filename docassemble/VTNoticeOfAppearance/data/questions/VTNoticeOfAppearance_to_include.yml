@@ -8,7 +8,7 @@ code: |
   docket_number
   set_progress(10)
   nav.set_section("about")
-  users1_role
+
   set_progress(20)
   users.gather()
   users[0].address.city

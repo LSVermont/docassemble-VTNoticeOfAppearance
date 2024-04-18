@@ -59,6 +59,7 @@ code: |
   nav.set_section("intro")
   al_intro_screen
   #notice_of_appearance_intro_screen
+  users1_role
   interview_order_a_notice_of_appearance_self_rep
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(

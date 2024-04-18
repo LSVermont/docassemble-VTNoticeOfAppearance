@@ -69,12 +69,45 @@ fields:
       val("users1_role") == "role_other"
 
 ---
-#id: users mailing address
-#question: |
-#  Your mailing address
-#fields:
-#  - "Mailing address": users1_address_mailing
-#    maxlength: 74
+id: Gather users street or mailing address
+sets:
+  - users[0].address.address
+  - users[0].address.city
+question: |
+  What is your address?
+fields:
+  - Address: users[0].address.address
+    address autocomplete: True
+  - Unit: users[0].address.unit
+    required: False
+  - City: users[0].address.city
+  - State: users[0].address.state
+    code: |
+      states_list()
+    default: VT
+  - Zip or postal code: users[0].address.zip
+    required: False
+  - County: users[0].address.county
+  - note: |
+      Not sure what county? [Check this list of cities and towns to find the county.](https://en.m.wikipedia.org/wiki/List_of_municipalities_in_Vermont#Cities)
+  - Do you have a mailing address that is different from your street address?: users1_mailing_address_different
+    datatype: yesnoradio
+  - Mailing address: users[0].mailing_address.address
+    address autocomplete: True
+    show if: users1_mailing_address_different
+  - Unit: users[0].mailing_address.unit
+    required: False
+    show if: users1_mailing_address_different
+  - City: users[0].mailing_address.city
+    show if: users1_mailing_address_different
+  - State: users[0].mailing_address.state
+    code: |
+      states_list()
+    default: VT
+    show if: users1_mailing_address_different
+  - Zip or postal code: users[0].mailing_address.zip
+    required: False
+    show if: users1_mailing_address_different
 ---
 id: Gather users contact information
 question: |
@@ -190,31 +223,24 @@ review:
     button: |
       Do you consent to getting email about this case?:
       **${ word(yesno(email_consent)) }**
-  - Edit:
-    - users1_role
+  - Edit: users1_role
     button: |      
       Your role in this case:     
       % if users1_role["role_plaintiff"]:
-      **Plaintiff**
+      - **Plaintiff**
       % endif
       % if users1_role["role_defendant"]:
-      **Defendant**
+      - **Defendant**
       % endif
       % if users1_role["role_other"]:
-      **${ other_role_description }**
+      - **${ showifdef("other_role_description") }**
       
-      Plaintiff's name in this case: **${ case_plaintiff_name }**
+      Plaintiff's name in this case: **${ showifdef("case_plaintiff_name") }**
       
-      Defendant's name in this case: **${ case_defendant_name }**
+      Defendant's name in this case: **${ showifdef("case_defendant_name") }**
       % endif
    
-#  - Edit: other_parties[0].name.first
-#    button: |
-#      Name of the other party
-#
-#      % for item in other_parties:
-#        * **${ item }**
-#      % endfor  
+
   - Edit: other_parties.revisit
     button: |
       Name of the other party

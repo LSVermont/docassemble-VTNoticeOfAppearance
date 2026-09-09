@@ -1,0 +1,199 @@
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_a_civil_notice_of_appearance_self_rep
+code: |
+  trial_court.address.address
+  docket_number
+
+  users.gather()
+  users[0].address.city
+  users[0].daytime_phone_number
+  email_consent
+  other_parties[0].name.first
+  trial_court.address.county
+  nav.set_section('sign')
+  al_form_requires_digital_signature = False 
+  interview_order_a_civil_notice_of_appearance_self_rep = True
+---
+id: choose a court
+question: |
+  Choose a court
+fields:
+  - note: |
+      Choose the county court where you will file your forms. 
+      
+      If there's an existing court case, choose the county that the case is in. Look at the papers from the court.
+      
+      Not sure what county you are in? [Check this list of cities and towns to find the county.](https://en.m.wikipedia.org/wiki/List_of_municipalities_in_Vermont#Cities)
+  - County: trial_court_index
+    code: all_courts._load_courts()['address_county'].items()
+---
+id: users role
+question: |
+  Your role
+fields:
+  - "What is your role in this case?": user_role
+    datatype: checkboxes
+    none of the above: False
+    minlength: 1
+    maxlength: 1
+    choices:
+    - "You are the \"Plaintiff,\" which means you started the case": plaintiff
+    - "You are the \"Defendant,\" which means you did not start the case but are named in the case": defendant
+    - "You have another role": role_other
+  - "Describe your role in a couple of words": other_role_description
+    maxlength: 28
+    js show if: |
+      val("user_role") == "role_other"
+  - "Plaintiff in this case": case_plaintiff_name
+    maxlength: 28
+    js show if: |
+      val("user_role") == "role_other"
+  - "Defendant in this case": case_defendant_name
+    maxlength: 28
+    js show if: |
+      val("user_role") == "role_other"
+
+---
+id: Gather users street or mailing address
+sets:
+  - users[0].address.address
+  - users[0].address.city
+question: |
+  What is your address?
+fields:
+  - Address: users[0].address.address
+    address autocomplete: True
+  - Unit: users[0].address.unit
+    required: False
+  - City: users[0].address.city
+  - State: users[0].address.state
+    code: |
+      states_list()
+    default: VT
+  - Zip or postal code: users[0].address.zip
+    required: False
+  - County: users[0].address.county
+  - note: |
+      Not sure what county? [Check this list of cities and towns to find the county.](https://en.m.wikipedia.org/wiki/List_of_municipalities_in_Vermont#Cities)
+  - Do you have a mailing address that is different from your street address?: users1_mailing_address_different
+    datatype: yesnoradio
+  - Mailing address: users[0].mailing_address.address
+    address autocomplete: True
+    show if: users1_mailing_address_different
+  - Unit: users[0].mailing_address.unit
+    required: False
+    show if: users1_mailing_address_different
+  - City: users[0].mailing_address.city
+    show if: users1_mailing_address_different
+  - State: users[0].mailing_address.state
+    code: |
+      states_list()
+    default: VT
+    show if: users1_mailing_address_different
+  - Zip or postal code: users[0].mailing_address.zip
+    required: False
+    show if: users1_mailing_address_different
+---
+id: Gather users contact information
+question: |
+  What is your contact information?
+subquestion: |
+  Include **at least one safe way**<span style="color:#d30404;">*</span> for the court to reach you other than by mail. 
+fields: 
+  - Daytime phone number: users[0].daytime_phone_number
+    datatype: al_international_phone
+    required: False
+  - Email: users[0].email    
+    datatype: email
+    required: False      
+  - note: |
+      <h2 class="h4">Email communications</h2>
+
+      The other parties in the case must send you a copy of all documents they file with the court. If you check the box below, the other parties may send you the documents **only by email.** 
+      If you select this option, be sure to check your email often.
+
+  - "I agree to get documents about this case by email only": email_consent
+    datatype: yesno
+validation code: |
+  if not (showifdef('users[0].daytime_phone_number')) and not (showifdef('users[0].email')):
+    validation_error(word("You need to provide at least one contact method."), field="users[0].daytime_phone_number")
+  if (showifdef('email_consent')) and not (showifdef('users[0].email')):
+    validation_error(word("You need to provide an email."), field="users[0].email")
+---
+id: gather defendant name
+sets:
+  - other_parties[0].name.first
+  - other_parties[0].name.last
+question: |
+  Name of the other party
+fields:
+  - First Name: other_parties[0].name.first
+  - Middle Name: other_parties[0].name.middle
+    required: False
+  - Last Name: other_parties[0].name.last
+  - Suffix: other_parties[0].name.suffix
+    choices: 
+      - Jr
+      - Sr
+      - I
+      - II
+      - III
+    required: False
+---
+code: |
+  # This is a placeholder for the addresses that will be searched
+  # for matching address to court. Edit if court venue is based on 
+  # a different address than the user's
+  #[user.address.address for user in users.complete_elements()]
+  #addresses_to_search = [user.address for user in users.complete_elements()]
+---
+# ALDocument objects specify the metadata for each template
+objects:
+  - a_civil_notice_of_appearance_self_rep_attachment: ALDocument.using(title="Notice of appearance - self-represented", filename="a_notice_of_appearance_self_rep", enabled=True, has_addendum=False, )
+---
+attachment:
+  name: a civil notice of appearance self rep
+  filename: a_civil_notice_of_appearance_self_rep
+  variable name: a_civil_notice_of_appearance_self_rep_attachment[i]
+  skip undefined: True
+  pdf template file: a_civil_notice_of_appearance_self_rep.pdf
+  fields:
+      - "docket_number": ${ docket_number }
+      - "trial_court_county": ${ trial_court.address.county }
+      - "users1_name": ${ users[0] }
+      - "case_plaintiff_name": |
+          % if user_role == "plaintiff":
+          ${ comma_and_list(users) }
+          % elif user_role == "defendant":
+          ${ other_parties.short_list(2) }
+          % elif user_role["role_other"]:
+          ${ case_plaintiff_name }
+          % endif
+      - "case_defendant_name": |
+          % if user_role == "defendant":
+          ${ comma_and_list(users) }
+          % elif user_role == "plaintiff":
+          ${ other_parties.short_list(2) }
+          % elif user_role["role_other"]:
+          ${ case_defendant_name }
+          % endif
+      - "role_plaintiff": ${ user_role == "plaintiff" }
+      - "role_defendant": ${ user_role == "defendant" }
+      - "role_other": ${ user_role["role_other"] }
+      - "user1_other_role": ${ other_role_description }
+      - "email_consent_yes": ${ email_consent }
+      - "email_consent_no": ${ not email_consent }
+      - "users1_address_mailing": |
+          % if users1_mailing_address_different:
+          ${ users[0].mailing_address.on_one_line() }
+          % else:
+          ${ users[0].address.on_one_line() }
+          % endif
+      - "users1_phone_number": ${ phone_number_formatted(users[0].daytime_phone_number) }
+      - "users1_email": ${ users[0].email }
+      - "users1_name_2": ${ users[0] }
+      - "signature_date": ${ format_date(signature_date, format='M/d/yyyy') }
+      - "users1_signature": ${ users[0].signature_if_final(i) }

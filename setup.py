@@ -1,6 +1,6 @@
 import os
 import sys
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 from fnmatch import fnmatchcase
 from distutils.util import convert_path
 
@@ -50,12 +50,10 @@ setup(name='docassemble.VTNoticeOfAppearance',
       long_description_content_type='text/markdown',
       author='VTCourtForms by Legal Services Vermont',
       author_email='ksurette@lawlinevt.org',
-      license='The MIT License',
+      license='MIT',
       url='https://VTLawHelp.org/VTCourtForms',
-      packages=find_packages(),
-      namespace_packages=['docassemble'],
-      install_requires=['docassemble.ALToolbox>=0.10.1', 'docassemble.AssemblyLine>=2.28.1', 'docassemble.VTFeedback', 'docassemble.VTSharedYMLFile'],
+      packages=find_namespace_packages(),
+      install_requires=['docassemble.ALToolbox @ git+https://github.com/suffolklitlab/docassemble-ALToolbox.git@main', 'docassemble.AssemblyLine>=4.8.0', 'docassemble.VTFeedback @ git+https://github.com/LSVermont/docassemble-VTFeedback.git@main', 'docassemble.VTSharedYMLFile @ git+https://github.com/LSVermont/docassemble-VTSharedYMLFile.git@main'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/VTNoticeOfAppearance/', package='docassemble.VTNoticeOfAppearance'),
      )
-

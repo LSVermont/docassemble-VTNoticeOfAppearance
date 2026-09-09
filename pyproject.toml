@@ -1,0 +1,32 @@
+[build-system]
+requires = [
+    "setuptools>=80.9.0",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "docassemble.VTNoticeOfAppearance"
+version = "1.0"
+description = "Notice of appearance - self-represented"
+readme = "README.md"
+authors = [
+    { name = "VTCourtForms by Legal Services Vermont", email = "ksurette@lawlinevt.org" },
+]
+dependencies = [
+    "docassemble.ALToolbox @ git+https://github.com/suffolklitlab/docassemble-ALToolbox.git@main",
+    "docassemble.AssemblyLine>=4.8.0",
+    "docassemble.VTFeedback @ git+https://github.com/LSVermont/docassemble-VTFeedback.git@main",
+    "docassemble.VTSharedYMLFile @ git+https://github.com/LSVermont/docassemble-VTSharedYMLFile.git@main",
+]
+license = "MIT"
+license-files = [
+    "LICENSE",
+]
+
+[project.urls]
+Homepage = "https://VTLawHelp.org/VTCourtForms"
+
+[tool.setuptools.packages.find]
+where = [
+    ".",
+]

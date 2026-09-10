@@ -53,7 +53,7 @@ setup(name='docassemble.VTNoticeOfAppearance',
       license='MIT',
       url='https://VTLawHelp.org/VTCourtForms',
       packages=find_namespace_packages(),
-      install_requires=['docassemble.ALToolbox @ git+https://github.com/suffolklitlab/docassemble-ALToolbox.git@main', 'docassemble.AssemblyLine>=4.8.0', 'docassemble.VTFeedback @ git+https://github.com/LSVermont/docassemble-VTFeedback.git@main', 'docassemble.VTSharedYMLFile @ git+https://github.com/LSVermont/docassemble-VTSharedYMLFile.git@main'],
+      install_requires=['docassemble.AssemblyLine>=4.8.0', 'docassemble.VTFeedback @ git+https://github.com/LSVermont/docassemble-VTFeedback.git@main', 'docassemble.VTSharedYMLFile @ git+https://github.com/LSVermont/docassemble-VTSharedYMLFile.git@main'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/VTNoticeOfAppearance/', package='docassemble.VTNoticeOfAppearance'),
      )

@@ -156,15 +156,15 @@ fields:
     required: False
 
 ---
-id: signature date
-question: |
-  Signature date
-fields:
-  - "Date of your signature for this form": signature_date
-    datatype: date
-    required: False
-    default: |
-      ${ today() }
+#id: signature date
+#question: |
+#  Signature date
+#fields:
+#  - "Date of your signature for this form": signature_date
+#    datatype: date
+#    required: False
+#    default: |
+#      ${ today() }
 ---
 id: preview notice of appearance
 question: |
@@ -412,3 +412,4 @@ attachment:
       - "users1_email": ${ users[0].email }
       - "signature_date": ${ format_date(signature_date, format='M/d/yyyy') }
       - "users1_signature": ${ users[0].signature_if_final(i) }
+      - "printed_signature": ${ printed_signature }

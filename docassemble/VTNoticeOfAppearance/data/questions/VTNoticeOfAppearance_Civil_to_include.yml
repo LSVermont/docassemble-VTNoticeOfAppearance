@@ -197,3 +197,4 @@ attachment:
       - "users1_name_2": ${ users[0] }
       - "signature_date": ${ format_date(signature_date, format='M/d/yyyy') }
       - "users1_signature": ${ users[0].signature_if_final(i) }
+      - "printed_signature": ${ printed_signature }
